@@ -5,7 +5,7 @@
         <el-button class="filter-item" style="margin-bottom: 12px;" type="primary" @click="handleAdd">新增</el-button>
       </div>
       <div style="float: right">
-        <el-input v-model="dsQuery.dataSourceName" placeholder="请输入数据源名称" style="width: 180px;" class="filter-item" @keyup.enter.native="handleFilter" />
+        <el-input v-model="dsQuery.dataSourceName" placeholder="请输入数据源名称" style="width: 180px;" clearable class="filter-item" @keyup.enter.native="handleFilter" />
         <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       </div>
     </div>
@@ -17,9 +17,9 @@
       fit
       highlight-current-row
     >
-      <el-table-column align="center" label="ID" width="95">
+      <el-table-column align="center" label="编号" width="95">
         <template slot-scope="scope">
-          {{ scope.$index }}
+          {{ scope.$index+1 }}
         </template>
       </el-table-column>
       <el-table-column label="数据源名称" width="200" align="center">
@@ -190,7 +190,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
+      fetchList(this.dsQuery).then(response => {
         if (response.data !== null && response.data.list !== undefined) {
           this.list = response.data.list
         }
@@ -206,7 +206,7 @@ export default {
       this.dialogFormVisible = true
     },
     handleFilter() {
-      console.log('handleFilter')
+      this.getList()
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj

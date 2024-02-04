@@ -16,7 +16,7 @@
       <el-main style="padding: 0 0 0 10px;">
         <div class="filter-container">
           <el-input v-model="listQuery.variableNameEn" placeholder="变量英文" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-          <el-select v-model="temp.variableType" class="filter-item" clearable placeholder="请选择类型">
+          <el-select v-model="listQuery.dataSourceType" class="filter-item" clearable placeholder="请选择类型">
             <el-option v-for="item in dataSourceTypeOptions" :key="item" :label="item" :value="item" />
           </el-select>
           <el-button v-waves class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
@@ -32,9 +32,8 @@
           fit
           highlight-current-row
           style="width: 100%; margin-top: 12px"
-          @sort-change="sortChange"
         >
-          <el-table-column label="编号" fixed="left" prop="id" type="index" sortable="custom" align="center" width="80px" :class-name="getSortClass('id')" />
+          <el-table-column label="编号" fixed="left" prop="id" type="index" sortable="custom" align="center" width="95px" />
           <el-table-column label="变量英文" fixed="left" width="150px" align="center">
             <template slot-scope="{row}">
               <span>{{ row.variableNameEn }}</span>
@@ -46,13 +45,13 @@
             </template>
           </el-table-column>
           <el-table-column label="数据源" width="180px" align="center">
-            <template slot-scope="">
-              <span>数据源名称</span>
+            <template slot-scope="{row}">
+              <span>{{ row.dataSourceName }}</span>
             </template>
           </el-table-column>
           <el-table-column label="类型" width="180px" align="center">
             <template slot-scope="{row}">
-              <span>{{ row.variableSource }}</span>
+              <span>{{ row.dataSourceType }}</span>
             </template>
           </el-table-column>
           <el-table-column label="需求名称" min-width="180px" align="center">
@@ -104,9 +103,12 @@
             <el-form-item label="变量中文" prop="variableNameZh">
               <el-input v-model="temp.variableNameZh" />
             </el-form-item>
-            <el-form-item label="数据源">
-              <el-select v-model="temp.variableType" class="filter-item" placeholder="请选择数据源">
-                <el-option v-for="item in dataSourceNameOptions" :key="item" :label="item" :value="item" />
+            <el-form-item label="数据源名称" placeholder="请输入数据源名称">
+              <el-input v-model="temp.dataSourceName" />
+            </el-form-item>
+            <el-form-item label="数据源类型">
+              <el-select v-model="temp.dataSourceType" class="filter-item" placeholder="请选择数据源">
+                <el-option v-for="item in dataSourceTypeOptions" :key="item" :label="item" :value="item" />
               </el-select>
             </el-form-item>
             <el-form-item label="变量状态">
@@ -157,7 +159,8 @@ export default {
         limit: 20,
         variableSource: undefined,
         variableNameEn: undefined,
-        variableType: undefined
+        dataSourceType: undefined,
+        dataSourceName: undefined
       },
       variableStatusMap,
       dataSourceTypeOptions: [],
@@ -167,10 +170,9 @@ export default {
         variableNameEn: '',
         variableNameZh: '',
         timestamp: new Date(),
-        variableAddress: '',
         variableDesc: '',
-        variableType: '',
-        variableSource: '',
+        dataSourceName: '',
+        dataSourceType: '',
         variableStatus: '',
         author: '',
         requirementName: '',
@@ -264,20 +266,6 @@ export default {
       })
       row.variableStatus = status
     },
-    sortChange(data) {
-      const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
-      }
-    },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+id'
-      } else {
-        this.listQuery.sort = '-id'
-      }
-      this.handleFilter()
-    },
     resetTemp() {
       this.temp = {
         id: undefined,
@@ -306,8 +294,7 @@ export default {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
+              message: '添加成功',
               type: 'success',
               duration: 2000
             })
@@ -382,10 +369,6 @@ export default {
           return v[j]
         }
       }))
-    },
-    getSortClass: function(key) {
-      const sort = this.listQuery.sort
-      return sort === `+${key}` ? 'ascending' : 'descending'
     },
     handleClickTabs() {
 
