@@ -17,7 +17,7 @@
       fit
       highlight-current-row
     >
-      <el-table-column align="center" label="编号" width="95">
+      <el-table-column align="center" label="序号" width="95">
         <template slot-scope="scope">
           {{ scope.$index+1 }}
         </template>
@@ -44,13 +44,15 @@
       </el-table-column>
       <el-table-column class-name="status-col" label="状态" width="110" align="center">
         <template slot-scope="scope">
-          <el-tag type="" effect="dark">{{ scope.row.status === 0 ? '新建' : '已发布' }}</el-tag>
+          <el-tag :effect="scope.row.status===0 ? 'plain' : 'light'">{{ scope.row.status === 0 ? '新建' : '运行中' }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">编辑</el-button>
-          <el-button size="mini" type="success" @click="handleModifyStatus(row,7)">发布</el-button>
+          <el-popconfirm title="确定发布吗？" style="margin-left: 10px;" @onConfirm="publishDataSource(row,$index)">
+            <el-button slot="reference" size="mini" :disabled="row.status!==0" type="success">发布</el-button>
+          </el-popconfirm>
           <el-popconfirm title="确定删除吗？" style="margin-left: 10px;" @onConfirm="handleDelete(row,$index)">
             <el-button slot="reference" size="mini" type="danger">删除</el-button>
           </el-popconfirm>
@@ -134,7 +136,7 @@
   </div>
 </template>
 <script>
-import { fetchDataSourceTypes, fetchList, createDataSource, updateDataSource } from '@/api/datasource'
+import { fetchDataSourceTypes, fetchList, createDataSource, updateDataSource, publishDataSource } from '@/api/datasource'
 
 export default {
   name: 'DataSource',
@@ -218,8 +220,15 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
-    handleModifyStatus() {
-      console.log('handleModifyStatus')
+    publishDataSource(row, index) {
+      publishDataSource({ 'dataSourceId': row.dataSourceId, 'status': 1 }).then(() => {
+        this.list[index].status = 1
+        this.$notify({
+          message: '发布成功',
+          type: 'success',
+          duration: 2000
+        })
+      })
     },
     handleDelete() {
       console.log('handleDelete')

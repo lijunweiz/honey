@@ -30,3 +30,11 @@ export function updateDataSource(data) {
     data
   })
 }
+
+export function publishDataSource(data) {
+  return request({
+    url: '/manage/datasource/publish',
+    method: 'post',
+    data
+  })
+}

@@ -33,7 +33,7 @@
           highlight-current-row
           style="width: 100%; margin-top: 12px"
         >
-          <el-table-column label="编号" fixed="left" prop="id" type="index" sortable="custom" align="center" width="95px" />
+          <el-table-column label="序号" fixed="left" prop="id" type="index" sortable="custom" align="center" width="95px" />
           <el-table-column label="变量英文" fixed="left" width="150px" align="center">
             <template slot-scope="{row}">
               <span>{{ row.variableNameEn }}</span>
