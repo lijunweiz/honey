@@ -1,2 +1,2 @@
 # honey
-honey决策引擎bee前端项目
+honey是决策引擎bee的前端项目
