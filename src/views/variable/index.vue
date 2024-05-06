@@ -16,7 +16,7 @@
       <el-main style="padding: 0 0 0 10px;">
         <div class="filter-container">
           <el-input v-model="listQuery.variableNameEn" placeholder="变量英文" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-          <el-select v-model="listQuery.dataSourceType" class="filter-item" clearable placeholder="请选择类型">
+          <el-select v-model="listQuery.dataSourceType" class="filter-item" clearable filterable placeholder="请选择类型">
             <el-option v-for="item in dataSourceTypeOptions" :key="item" :label="item" :value="item" />
           </el-select>
           <el-button v-waves class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
@@ -103,12 +103,9 @@
             <el-form-item label="变量中文" prop="variableNameZh">
               <el-input v-model="temp.variableNameZh" />
             </el-form-item>
-            <el-form-item label="数据源名称" placeholder="请输入数据源名称">
-              <el-input v-model="temp.dataSourceName" />
-            </el-form-item>
-            <el-form-item label="数据源类型">
-              <el-select v-model="temp.dataSourceType" class="filter-item" placeholder="请选择数据源">
-                <el-option v-for="item in dataSourceTypeOptions" :key="item" :label="item" :value="item" />
+            <el-form-item label="数据源名称">
+              <el-select v-model="temp.dataSourceName" class="filter-item" filterable placeholder="请选择名称">
+                <el-option v-for="item in dataSourceNameOptions" :key="item" :label="item" :value="item" />
               </el-select>
             </el-form-item>
             <el-form-item label="变量状态">
@@ -139,7 +136,7 @@ import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 // import TabPane from '@/components/TabPane'
 import { variableStatusMap, variableStatusFilter } from '@/filters'
-import { fetchDataSourceTypes } from '@/api/datasource'
+import { fetchDataSourceTypes, fetchDataSourceNames } from '@/api/datasource'
 
 export default {
   name: 'VariableManage',
@@ -278,6 +275,9 @@ export default {
       }
     },
     handleCreate() {
+      if (this.dataSourceNameOptions.length === 0) {
+        this.fetchDataSourceNames()
+      }
       this.resetTemp()
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
@@ -303,6 +303,9 @@ export default {
       })
     },
     handleUpdate(row) {
+      if (this.dataSourceNameOptions.length === 0) {
+        this.fetchDataSourceNames()
+      }
       this.temp = Object.assign({}, row) // copy obj
       this.temp.timestamp = new Date(this.temp.timestamp)
       this.temp.updateTime = new Date()
@@ -328,6 +331,13 @@ export default {
               duration: 2000
             })
           })
+        }
+      })
+    },
+    fetchDataSourceNames() {
+      fetchDataSourceNames().then(response => {
+        if (response.data !== null) {
+          this.dataSourceNameOptions = response.data.dataSourceNameOptions
         }
       })
     },

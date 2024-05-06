@@ -7,6 +7,13 @@ export function fetchDataSourceTypes() {
   })
 }
 
+export function fetchDataSourceNames() {
+  return request({
+    url: '/manage/datasource/names',
+    method: 'get'
+  })
+}
+
 export function fetchList(query) {
   return request({
     url: '/manage/datasource/list',
