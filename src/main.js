@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import VueCompositionApi from '@vue/composition-api'
 
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
@@ -15,6 +16,7 @@ import router from './router'
 import '@/icons' // icon
 import '@/permission' // permission control
 
+Vue.use(VueCompositionApi)
 Vue.use(ElementUI)
 // Object.keys(filters).forEach(key => {
 //   Vue.filter(key, filters[key])

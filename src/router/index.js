@@ -98,6 +98,12 @@ export const constantRoutes = [
         name: 'evaluate',
         component: () => import('@/views/flow/evaluate'),
         meta: { title: '评估' }
+      },
+      {
+        path: 'lf',
+        name: 'lf',
+        component: () => import('@/views/flow/lf'),
+        meta: { title: '决策组' }
       }
     ]
   },

@@ -29,7 +29,11 @@
     "vue": "2.6.10",
     "vue-router": "3.0.6",
     "vuex": "3.1.0",
-    "xlsx": "0.14.1"
+    "xlsx": "0.14.1",
+    "@vue/composition-api": "^1.4.0",
+    "@logicflow/core": "1.2.1",
+    "@logicflow/extension": "1.2.1",
+    "vue-json-pretty": "1.7.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "4.4.4",
