@@ -197,10 +197,7 @@ export default {
           this.list = response.data.list
         }
 
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 0.2 * 1000)
+        this.listLoading = false
       })
     },
     handleAdd() {

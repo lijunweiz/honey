@@ -56,68 +56,44 @@ export const constantRoutes = [
   },
 
   {
-    path: '/variable',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Variable',
-        component: () => import('@/views/variable/index'),
-        meta: { title: '变量管理', icon: 'edit' }
-      }
-    ]
-  },
-
-  {
     path: '/flow',
     component: Layout,
-    redirect: '/flow/module',
+    redirect: '/flow/common',
     name: 'Flow',
-    meta: { title: '决策引擎', icon: 'component' },
+    meta: { title: '流程管理', icon: 'component' },
     children: [
       {
-        path: 'module',
-        name: 'Module',
-        component: () => import('@/views/flow/module'),
-        meta: { title: '模块' }
-      },
-      {
-        path: 'monitor',
-        name: 'Monitor',
-        component: () => import('@/views/flow/monitor'),
-        meta: { title: '监视器' }
-      },
-      {
-        path: 'editor',
-        name: 'editor',
-        component: () => import('@/views/flow/editor'),
-        meta: { title: '编辑器' }
-      },
-      {
-        path: 'evaluate',
-        name: 'evaluate',
-        component: () => import('@/views/flow/evaluate'),
-        meta: { title: '评估' }
+        path: 'common',
+        name: 'Common',
+        component: () => import('@/views/flow/common'),
+        meta: { title: '公共模块' }
       },
       {
         path: 'lf',
         name: 'lf',
         component: () => import('@/views/flow/lf'),
-        meta: { title: '决策组' }
+        meta: { title: '执行组' }
       }
     ]
   },
 
   {
-    path: '/datasource',
+    path: '/infra',
     component: Layout,
-    redirect: '/datasource/config',
-    name: 'DataSource',
+    redirect: '/infra/variable',
+    name: 'Infra',
+    meta: { title: '基本配置', icon: 'documentation' },
     children: [
       {
-        path: 'config',
-        name: 'Config',
-        component: () => import('@/views/datasource/index'),
+        path: 'variable',
+        name: 'Variable',
+        component: () => import('@/views/infra/variable/index'),
+        meta: { title: '变量管理', icon: 'edit' }
+      },
+      {
+        path: 'datasource',
+        name: 'Datasource',
+        component: () => import('@/views/infra/datasource/index'),
         meta: { title: '数据源配置', icon: 'data-source' }
       }
     ]

@@ -7,7 +7,7 @@
       @mousedown="$_dragNode(item)"
     >
       <div class="node-item-icon" :class="item.class">
-        <div v-if="item.type === 'user' || item.type === 'time'" class="shape" />
+        <!--<div v-if="item.type === 'condition' || item.type === 'time'" class="shape" />-->
       </div>
       <span class="node-label">{{ item.text }}</span>
     </div>
@@ -50,7 +50,7 @@ export default {
 .node-item-icon {
   width: 30px;
   height: 30px;
-  margin-left: 20px;
+  margin: auto;
   background-size: cover;
 }
 .node-label {
@@ -63,7 +63,13 @@ export default {
   background-size: cover;
 }
 .node-rect{
-  border: 1px solid black;
+  border: 2px solid black;
+}
+.node-condition{
+  width: 45px;
+  height: 45px;
+  background: url('../background/diamond.png') no-repeat;
+  background-size: cover;
 }
 .node-user{
   background: url('../background/user.png') no-repeat;

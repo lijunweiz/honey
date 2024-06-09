@@ -73,7 +73,7 @@ export default function registerEnd(lf) {
         data.text = {
           value: (data.text && data.text.value) || '',
           x: data.x,
-          y: data.y + 35
+          y: data.y
         }
         super.initNodeData(data)
         this.r = 20

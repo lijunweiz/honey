@@ -16,8 +16,7 @@ export default function registerStart(lf) {
             y: y + 4,
             width: 50,
             height: 25
-          },
-          'Start'
+          }
         )
       }
       getShape() {
@@ -55,13 +54,13 @@ export default function registerStart(lf) {
     class StartModel extends CircleNodeModel {
       // 自定义节点形状属性
       initNodeData(data) {
-        data.text = {
-          value: (data.text && data.text.value) || '',
-          x: data.x,
-          y: data.y + 35,
-          dragable: false,
-          editable: true
-        }
+        // data.text = {
+        //   value: (data.text && data.text.value) || '',
+        //   x: data.x,
+        //   y: data.y,
+        //   draggable: false,
+        //   editable: false
+        // }
         super.initNodeData(data)
         this.r = 20
       }

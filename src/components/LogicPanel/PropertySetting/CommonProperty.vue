@@ -1,21 +1,8 @@
 <template>
   <div>
     <el-form label-width="80px" :model="formData">
-      <el-form-item label="文案">
-        <el-input v-model="formData.text" />
-      </el-form-item>
       <el-form-item label="名称">
         <el-input v-model="formData.name" />
-      </el-form-item>
-      <el-form-item label="活动区域">
-        <el-input v-model="formData.region" />
-      </el-form-item>
-      <el-form-item label="活动形式">
-        <el-input v-model="formData.type" />
-      </el-form-item>
-      <el-form-item label="A">
-        <el-input v-model="formData.a.a1" />
-        <el-input v-model="formData.a.a2" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit">保存</el-button>
@@ -34,16 +21,8 @@ export default {
   },
   data() {
     return {
-      text: '',
       formData: {
-        text: '',
-        name: '',
-        region: '',
-        type: '',
-        a: {
-          a1: '',
-          a2: ''
-        }
+        name: ''
       }
     }
   },
@@ -53,7 +32,7 @@ export default {
       this.$data.formData = Object.assign({}, this.$data.formData, properties)
     }
     if (text && text.value) {
-      this.$data.formData.text = text.value
+      this.$data.formData.name = text.value
     }
     if (text && text.value) {
       this.$data.text = text.value
@@ -66,7 +45,7 @@ export default {
         ...this.$data.formData
       })
       console.log(6666, this.$data.formData)
-      this.$props.lf.updateText(id, this.$data.formData.text)
+      this.$props.lf.updateText(id, this.$data.formData.name)
       this.$emit('onClose')
     }
   }

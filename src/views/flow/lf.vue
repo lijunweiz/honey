@@ -56,7 +56,6 @@ import { Menu, Snapshot, MiniMap } from '@logicflow/extension'
 import '@logicflow/core/dist/style/index.css'
 import '@logicflow/extension/lib/style/index.css'
 import NodePanel from '../../components/LogicPanel/LFComponents/NodePanel'
-import AddPanel from '../../components/LogicPanel/LFComponents/AddPanel'
 import Control from '../../components/LogicPanel/LFComponents/Control'
 import PropertyDialog from '../../components/LogicPanel/PropertySetting/PropertyDialog'
 import DataDialog from '../../components/LogicPanel/LFComponents/DataDialog'
@@ -64,19 +63,15 @@ import { nodeList } from '@/components/LogicPanel/config'
 
 import {
   registerStart,
-  registerUser,
+  registerCondition,
   registerEnd,
-  registerPush,
-  registerDownload,
   registerPolyline,
-  registerTask,
-  registerConnect
+  registerTask
 } from '../../components/LogicPanel/registerNode'
-const demoData = require('../../components/LogicPanel/data.json')
 
 export default {
   name: 'LF',
-  components: { NodePanel, AddPanel, Control, PropertyDialog, DataDialog },
+  components: { NodePanel, Control, PropertyDialog, DataDialog },
   data() {
     return {
       lf: null,
@@ -161,17 +156,14 @@ export default {
     // 自定义
     registerNode() {
       registerStart(this.lf)
-      registerUser(this.lf)
+      registerCondition(this.lf)
       registerEnd(this.lf)
-      registerPush(this.lf, this.clickPlus, this.mouseDownPlus)
-      registerDownload(this.lf)
       registerPolyline(this.lf)
       registerTask(this.lf)
-      registerConnect(this.lf)
       this.render()
     },
     render() {
-      this.lf.render(demoData)
+      this.lf.render({})
       this.lfEvent()
     },
     getData() {
@@ -210,6 +202,18 @@ export default {
       })
       this.lf.on('node:mousemove', () => {
         console.log('on mousemove')
+      })
+      // 监听节点大小调整事件
+      this.lf.on('node:resize', ({ nodeModel }) => {
+        const properties = nodeModel.getProperties()
+        console.log('节点大小调整:', properties.width, properties.height)
+      })
+      // 监听图表拖动事件
+      this.lf.on('graph:drag', ({ e, data }) => {
+        if (data.type === 'node') {
+          // 节点拖动时，动态调整网格大小
+          this.lf.setGridSize(data.style.width / 2)
+        }
       })
     },
     clickPlus(e, attributes) {

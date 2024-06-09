@@ -6,6 +6,8 @@
         <el-tree
           ref="tree"
           class="filter-tree"
+          node-key="id"
+          :default-expanded-keys="[-1]"
           :data="treeData"
           :props="defaultProps"
           accordion
@@ -219,11 +221,8 @@ export default {
             })
           }
         ]
-      }
-      // Just to simulate the time of the request
-      setTimeout(() => {
         this.listLoading = false
-      }, 0.2 * 1000)
+      }
       console.log(this.treeData)
     })
     this.getList()
@@ -246,10 +245,7 @@ export default {
           this.total = response.data.total
         }
 
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 0.2 * 1000)
+        this.listLoading = false
       })
     },
     handleFilter() {

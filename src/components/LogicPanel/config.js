@@ -5,33 +5,18 @@ export const nodeList = [
     class: 'node-start'
   },
   {
-    text: '矩形',
+    text: '节点',
     type: 'rect',
     class: 'node-rect'
   },
   {
-    type: 'user',
-    text: '用户',
-    class: 'node-user'
+    text: '条件',
+    type: 'condition',
+    class: 'node-condition'
   },
   {
-    type: 'push',
-    text: '推送',
-    class: 'node-push'
-  },
-  {
-    type: 'download',
-    text: '位置',
-    class: 'node-download'
-  },
-  {
-    type: 'connect',
-    text: 'Html',
-    class: 'node-push'
-  },
-  {
-    type: 'end',
     text: '结束',
+    type: 'end',
     class: 'node-end'
   }
 ]
