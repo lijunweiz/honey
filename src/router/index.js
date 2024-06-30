@@ -82,7 +82,7 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/infra/variable',
     name: 'Infra',
-    meta: { title: '基本配置', icon: 'documentation' },
+    meta: { title: '基本配置', icon: 'el-icon-s-operation' },
     children: [
       {
         path: 'variable',

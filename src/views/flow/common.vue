@@ -185,7 +185,7 @@ export default {
             console.log(JSON.stringify(response) + 'list.unshift: ' + JSON.stringify(this.list))
             if (this.treeNode.isLeaf === 1) {
               this.treeNode.modelId = response.data
-              this.list[this.list.indexOf(this.treeNode.modelType)].unshift(this.treeNode)
+              this.list[this.list.indexOf(this.treeNode.modelType)].push(this.treeNode)
             } else {
               this.treeData.push({ 'id': response.data, 'label': this.treeNode.modelType, 'isLeaf': this.treeNode.isLeaf })
             }
