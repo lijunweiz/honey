@@ -34,7 +34,15 @@ export function createVariable(data) {
 
 export function updateVariable(data) {
   return request({
-    url: '/manage/variable/update',
+    url: '/manage/variable/modifyStatus',
+    method: 'post',
+    data
+  })
+}
+
+export function modifyStatus(data) {
+  return request({
+    url: '/manage/variable/modifyStatus',
     method: 'post',
     data
   })

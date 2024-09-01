@@ -5,6 +5,7 @@
         <el-input v-model="filterText" placeholder="搜索" />
         <el-tree
           ref="tree"
+          :key="timestamp"
           class="filter-tree"
           node-key="id"
           :default-expanded-keys="defaultExpandedKeys"
@@ -109,6 +110,7 @@ export default {
         label: 'label'
       },
       tableKey: 0,
+      timestamp: 0,
       list: [],
       total: 0,
       listLoading: true,
@@ -185,10 +187,12 @@ export default {
             console.log(JSON.stringify(response) + 'list.unshift: ' + JSON.stringify(this.list))
             if (this.treeNode.isLeaf === 1) {
               this.treeNode.modelId = response.data
-              this.list[this.list.indexOf(this.treeNode.modelType)].push(this.treeNode)
+              this.list.push(this.treeNode)
             } else {
               this.treeData.push({ 'id': response.data, 'label': this.treeNode.modelType, 'isLeaf': this.treeNode.isLeaf })
             }
+            this.timestamp = this.timestamp + 1// 刷新问题
+            this.tableKey = this.tableKey + 1
             this.dialogFormVisible = false
             this.$notify({
               message: '添加成功',

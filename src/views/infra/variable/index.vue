@@ -68,7 +68,9 @@
           </el-table-column>
           <el-table-column label="变量状态" class-name="status-col" width="80px" align="center">
             <template slot-scope="{row}">
-              <el-tag type="">{{ row.variableStatus | variableStatusFilter }}</el-tag>
+              <el-tag effect="dark" :type="row.variableStatus===0||row.variableStatus===1 ? '' : (row.variableStatus===2 ? 'success':'danger')">
+                {{ row.variableStatus | variableStatusFilter }}
+              </el-tag>
             </template>
           </el-table-column>
           <el-table-column label="操作" fixed="right" align="center" width="140" class-name="small-padding fixed-width">
@@ -80,12 +82,15 @@
                     <el-button type="primary" size="mini" @click="handleUpdate(row)">编辑</el-button>
                   </el-dropdown-item>
                   <el-dropdown-item style="padding: 0 0">
-                    <el-button :disabled="row.variableStatus !== 5" size="mini" type="success" @click="handleModifyStatus(row,7)">发布</el-button>
+                    <el-button :disabled="row.variableStatus === 1 || row.variableStatus === 2" size="mini" type="success" @click="handleModifyStatus(row,2)">发布</el-button>
+                  </el-dropdown-item>
+                  <el-dropdown-item style="padding: 0 0">
+                    <el-button :disabled="row.variableStatus === 3" size="mini" type="danger" @click="handleModifyStatus(row,3)">停用</el-button>
                   </el-dropdown-item>
                   <el-dropdown-item style="padding: 0 0">
                     <template>
                       <el-popconfirm title="确定删除吗？" @onConfirm="handleDelete(row,$index)">
-                        <el-button slot="reference" :disabled="row.variableStatus === 8" size="mini" type="danger">删除</el-button>
+                        <el-button slot="reference" :disabled="row.variableStatus === 4" size="mini" type="danger">删除</el-button>
                       </el-popconfirm>
                     </template>
                   </el-dropdown-item>
@@ -106,19 +111,20 @@
               <el-input v-model="temp.variableNameZh" />
             </el-form-item>
             <el-form-item label="数据源名称">
-              <el-select v-model="temp.dataSourceName" class="filter-item" filterable placeholder="请选择名称">
+              <el-select v-model="temp.dataSourceName" class="filter-item" filterable placeholder="请选择" :disabled="dialogStatus!=='create'">
                 <el-option v-for="item in dataSourceNameOptions" :key="item" :label="item" :value="item" />
               </el-select>
             </el-form-item>
             <el-form-item label="变量状态">
-              <el-tag v-if="dialogStatus==='create'">新建</el-tag>
-              <el-tag v-if="dialogStatus!=='create'">{{ temp.variableStatus | variableStatusFilter }}</el-tag>
+              <el-tag effect="dark" :type="temp.variableStatus===0||temp.variableStatus===1 ? '' : (temp.variableStatus===2 ? 'success':'danger')">
+                {{ temp.variableStatus | variableStatusFilter }}
+              </el-tag>
             </el-form-item>
             <el-form-item label="需求名称">
               <el-input v-model="temp.requirementName" />
             </el-form-item>
             <el-form-item label="描述">
-              <el-input v-model="temp.variableDesc" :autosize="{ minRows: 2, maxRows: 8}" type="textarea" placeholder="请输入描述信息" />
+              <el-input v-model="temp.variableDesc" :autosize="{ minRows: 2, maxRows: 8}" type="textarea" placeholder="请输入" />
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer" style="text-align:right;">
@@ -132,7 +138,7 @@
 </template>
 
 <script>
-import { fetchList, fetchPv, createVariable, updateVariable } from '@/api/variable'
+import { fetchList, fetchPv, createVariable, updateVariable, modifyStatus } from '@/api/variable'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -172,7 +178,7 @@ export default {
         variableDesc: '',
         dataSourceName: '',
         dataSourceType: '',
-        variableStatus: '',
+        variableStatus: 0,
         author: '',
         requirementName: '',
         updateTime: ''
@@ -253,11 +259,15 @@ export default {
       this.getList()
     },
     handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作成功',
-        type: 'success'
+      modifyStatus({ 'variableNameEn': row.variableNameEn, 'author': row.author, 'variableStatus': status }).then(() => {
+        row.variableStatus = status
+        this.$notify({
+          title: 'Success',
+          message: 'Update Successfully',
+          type: 'success',
+          duration: 2000
+        })
       })
-      row.variableStatus = status
     },
     resetTemp() {
       this.temp = {
@@ -267,7 +277,8 @@ export default {
         timestamp: new Date(),
         title: '',
         status: 'published',
-        type: ''
+        type: '',
+        variableStatus: 0
       }
     },
     handleCreate() {
