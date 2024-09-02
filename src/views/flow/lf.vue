@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="logic-flow-view">
-      <h3 class="demo-title">LogicFlow Test</h3>
+      <h3 class="demo-title">Flow Test</h3>
       <!-- 辅助工具栏 -->
       <Control
         v-if="lf"

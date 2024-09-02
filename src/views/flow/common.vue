@@ -188,6 +188,7 @@ export default {
             if (this.treeNode.isLeaf === 1) {
               this.treeNode.modelId = response.data
               this.list.push(this.treeNode)
+              this.total = this.total + 1
             } else {
               this.treeData.push({ 'id': response.data, 'label': this.treeNode.modelType, 'isLeaf': this.treeNode.isLeaf })
             }

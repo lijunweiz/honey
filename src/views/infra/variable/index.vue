@@ -110,6 +110,11 @@
             <el-form-item label="变量中文" prop="variableNameZh">
               <el-input v-model="temp.variableNameZh" />
             </el-form-item>
+            <el-form-item label="数据源类型">
+              <el-select v-model="temp.dataSourceType" class="filter-item" filterable placeholder="请选择" :disabled="dialogStatus!=='create'" @change="fetchDataSourceNames">
+                <el-option v-for="item in dataSourceTypeOptions" :key="item" :label="item" :value="item" />
+              </el-select>
+            </el-form-item>
             <el-form-item label="数据源名称">
               <el-select v-model="temp.dataSourceName" class="filter-item" filterable placeholder="请选择" :disabled="dialogStatus!=='create'">
                 <el-option v-for="item in dataSourceNameOptions" :key="item" :label="item" :value="item" />
@@ -161,7 +166,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 20,
+        limit: 10,
         variableSource: undefined,
         variableNameEn: undefined,
         dataSourceType: undefined,
@@ -263,7 +268,7 @@ export default {
         row.variableStatus = status
         this.$notify({
           title: 'Success',
-          message: 'Update Successfully',
+          message: status === 4 ? 'Delete Successfully' : 'Update Successfully',
           type: 'success',
           duration: 2000
         })
@@ -282,9 +287,6 @@ export default {
       }
     },
     handleCreate() {
-      if (this.dataSourceNameOptions.length === 0) {
-        this.fetchDataSourceNames()
-      }
       this.resetTemp()
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
@@ -310,9 +312,6 @@ export default {
       })
     },
     handleUpdate(row) {
-      if (this.dataSourceNameOptions.length === 0) {
-        this.fetchDataSourceNames()
-      }
       this.temp = Object.assign({}, row) // copy obj
       this.temp.timestamp = new Date(this.temp.timestamp)
       this.temp.updateTime = new Date()
@@ -342,21 +341,16 @@ export default {
       })
     },
     fetchDataSourceNames() {
-      fetchDataSourceNames().then(response => {
+      fetchDataSourceNames({ 'dataSourceType': this.temp.dataSourceType }).then(response => {
         if (response.data !== null) {
           this.dataSourceNameOptions = response.data.dataSourceNameOptions
         }
       })
     },
     handleDelete(row, index) {
-      console.log('handleDelete' + JSON.stringify(row))
-      this.$notify({
-        title: 'Success',
-        message: 'Delete Successfully',
-        type: 'success',
-        duration: 2000
-      })
+      this.handleModifyStatus(row, 4)
       this.list.splice(index, 1)
+      this.total = this.total - 1
     },
     handleFetchPv(pv) {
       fetchPv(pv).then(response => {
