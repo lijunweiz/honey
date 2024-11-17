@@ -58,15 +58,15 @@ export const constantRoutes = [
   {
     path: '/flow',
     component: Layout,
-    redirect: '/flow/common',
+    redirect: '/flow/model',
     name: 'Flow',
     meta: { title: '流程管理', icon: 'component' },
     children: [
       {
-        path: 'common',
-        name: 'Common',
-        component: () => import('@/views/flow/common'),
-        meta: { title: '公共模块' }
+        path: 'model',
+        name: 'Model',
+        component: () => import('@/views/flow/model'),
+        meta: { title: '模块配置' }
       },
       {
         path: 'lf',

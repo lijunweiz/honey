@@ -24,15 +24,19 @@
           >
             <div class="text-overflow" style="display: inline-block;width: 180px">{{ node.label }}</div>
             <div v-show="showOptionMenuId===data.id" style="position: relative; z-index: 2000; float: right; width: 70px">
-              <button type="button" class="el-button el-button--default" style="padding: 0;border: none" @click="handleCreateTreeNode(node, data)"><i class="el-icon-plus" /></button>
-              <button type="button" class="el-button el-button--default" style="padding: 0;border: none" @click="handleUpdateTreeNode(node, data)"><i class="el-icon-edit" /></button>
+              <button v-show="data.isLeaf===1" type="button" class="el-button el-button--default" style="padding: 0;border: none" @click="handleCreateTreeNode(node, data)">
+                <i class="el-icon-plus" />
+              </button>
+              <button type="button" class="el-button el-button--default" style="padding: 0;border: none" @click="handleUpdateTreeNode(node, data, $event)">
+                <i class="el-icon-edit" />
+              </button>
             </div>
           </div>
         </el-tree>
       </el-aside>
       <el-main style="padding: 0 0 0 10px;">
         <div class="filter-container" style="float: right; margin-bottom: 12px;">
-          <el-button class="filter-item" type="primary" icon="el-icon-edit">添加</el-button>
+          <el-button class="filter-item" type="primary" icon="el-icon-edit" @click="handleCreateTreeNode(null, null)">添加</el-button>
         </div>
         <el-table
           :key="tableKey"
@@ -78,10 +82,10 @@
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%">
           <el-form ref="dataForm" :rules="rules" :model="treeNode" label-position="left" label-width="85px" hide-required-asterisk style="width: 400px; margin-left:50px;">
             <el-form-item label="模型类型">
-              <el-input v-model="treeNode.modelType" :disabled="treeNode.isLeaf===1" />
+              <el-input v-model="treeNode.modelType" />
             </el-form-item>
-            <el-form-item label="模型名称">
-              <el-input v-model="treeNode.modelName" :disabled="treeNode.isLeaf===0" />
+            <el-form-item v-show="treeNode.isLeaf===1" label="模型名称">
+              <el-input v-model="treeNode.modelName" />
             </el-form-item>
             <el-form-item label="描述">
               <el-input v-model="treeNode.desc" :autosize="{ minRows: 2, maxRows: 8}" type="textarea" placeholder="请输入描述信息" />
@@ -215,17 +219,23 @@ export default {
     },
     handleCreateTreeNode(node, data) {
       this.resetTreeNode()
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-      if (node.isLeaf) {
-        this.treeNode.modelType = node.parent.data.label
+      if (node == null && data == null) {
+        this.treeNode.isLeaf = 0
+      } else {
+        this.$nextTick(() => {
+          this.$refs['dataForm'].clearValidate()
+        })
+        if (node.isLeaf) {
+          this.treeNode.modelType = node.parent.data.label
+        }
+        this.treeNode.isLeaf = data.isLeaf
       }
-      this.treeNode.isLeaf = data.isLeaf
+
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
     },
-    handleUpdateTreeNode(node, data) {
+    handleUpdateTreeNode(node, data, e) {
+      e.stopPropagation()
       this.resetTreeNode()
       if (node.isLeaf) {
         this.treeNode.modelType = node.parent.data.label
