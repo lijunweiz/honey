@@ -34,7 +34,7 @@
       </el-table-column>
       <el-table-column label="描述" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.desc }}</span>
+          <span>{{ scope.row.dataSourceDesc }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" prop="created_at" label="调用地址">
@@ -44,14 +44,14 @@
       </el-table-column>
       <el-table-column class-name="status-col" label="状态" width="110" align="center">
         <template slot-scope="scope">
-          <el-tag :effect="scope.row.status===0 ? 'plain' : 'light'">{{ scope.row.status === 0 ? '新建' : '运行中' }}</el-tag>
+          <el-tag :effect="scope.row.dataSourceStatus===0 ? 'plain' : 'light'">{{ scope.row.dataSourceStatus === 0 ? '新建' : '运行中' }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">编辑</el-button>
           <el-popconfirm title="确定发布吗？" style="margin-left: 10px;" @onConfirm="publishDataSource(row,$index)">
-            <el-button slot="reference" size="mini" :disabled="row.status!==0" type="success">发布</el-button>
+            <el-button slot="reference" size="mini" :disabled="row.dataSourceStatus!==0" type="success">发布</el-button>
           </el-popconfirm>
           <el-popconfirm title="确定删除吗？" style="margin-left: 10px;" @onConfirm="handleDelete(row,$index)">
             <el-button slot="reference" size="mini" type="danger">删除</el-button>
@@ -77,7 +77,7 @@
                 <el-tag v-if="dialogStatus==='update'">更新</el-tag>
               </el-form-item>
               <el-form-item label="描述">
-                <el-input v-model="temp.desc" :autosize="{ minRows: 2, maxRows: 8}" type="textarea" placeholder="请输入描述信息" />
+                <el-input v-model="temp.dataSourceDesc" :autosize="{ minRows: 2, maxRows: 8}" type="textarea" placeholder="请输入描述信息" />
               </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer" style="text-align:right;">
@@ -161,8 +161,8 @@ export default {
         timestamp: new Date(),
         dataSourceName: '',
         dataSourceType: '',
-        status: 0,
-        desc: '',
+        dataSourceStatus: 0,
+        dataSourceDesc: '',
         protocol: '',
         method: '',
         address: '',
@@ -218,8 +218,8 @@ export default {
       })
     },
     publishDataSource(row, index) {
-      publishDataSource({ 'dataSourceId': row.dataSourceId, 'status': 1 }).then(() => {
-        this.list[index].status = 1
+      publishDataSource({ 'dataSourceId': row.dataSourceId, 'dataSourceStatus': 1 }).then(() => {
+        this.list[index].dataSourceStatus = 1
         this.$notify({
           message: '发布成功',
           type: 'success',

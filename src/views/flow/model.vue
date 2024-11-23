@@ -60,7 +60,7 @@
           </el-table-column>
           <el-table-column label="描述信息" width="380px" align="center">
             <template slot-scope="{row}">
-              <span>{{ row.desc }}</span>
+              <span>{{ row.modelDesc }}</span>
             </template>
           </el-table-column>
           <el-table-column label="作者" width="180px" align="center">
@@ -72,7 +72,7 @@
             <template slot-scope="{row,$index}">
               <el-button type="primary" size="mini" @click="handleUpdate(row)">编排</el-button>
               <el-popconfirm title="确定发布吗？" style="margin: 0 10px;" @onConfirm="publishDataSource(row,$index)">
-                <el-button slot="reference" size="mini" :disabled="row.status!==0" type="success">发布</el-button>
+                <el-button slot="reference" size="mini" :disabled="row.dataSourceStatus!==0" type="success">发布</el-button>
               </el-popconfirm>
               <el-button slot="reference" size="mini">试算</el-button>
             </template>
@@ -88,7 +88,7 @@
               <el-input v-model="treeNode.modelName" />
             </el-form-item>
             <el-form-item label="描述">
-              <el-input v-model="treeNode.desc" :autosize="{ minRows: 2, maxRows: 8}" type="textarea" placeholder="请输入描述信息" />
+              <el-input v-model="treeNode.modelDesc" :autosize="{ minRows: 2, maxRows: 8}" type="textarea" placeholder="请输入描述信息" />
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer" style="text-align:right;">
@@ -128,14 +128,14 @@ export default {
       rules: {
         modelType: [{ required: true, message: '模型类型不能为空', trigger: 'blur' }],
         modelName: [{ required: true, message: '模型名称不能为空', trigger: 'blur' }],
-        desc: [{ required: true, message: '描述信息不能为空', trigger: 'blur' }]
+        modelDesc: [{ required: true, message: '描述信息不能为空', trigger: 'blur' }]
       },
       treeNode: {
         modelId: undefined,
         modelType: '',
         modelName: '',
         isLeaf: undefined,
-        desc: '',
+        modelDesc: '',
         operator: '',
         timestamp: null
       },
@@ -235,15 +235,16 @@ export default {
       this.dialogFormVisible = true
     },
     handleUpdateTreeNode(node, data, e) {
-      e.stopPropagation()
+      e.stopPropagation()// 禁止点击事件冒泡（阻止父组件响应点击事件）
       this.resetTreeNode()
       if (node.isLeaf) {
         this.treeNode.modelType = node.parent.data.label
+        this.treeNode.modelName = node.label
       } else {
         this.treeNode.modelType = node.label
       }
       this.treeNode.isLeaf = data.isLeaf
-      this.treeNode.desc = data.desc
+      this.treeNode.modelDesc = data.modelDesc
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
     },
@@ -252,7 +253,7 @@ export default {
         modelType: '',
         modelName: '',
         isLeaf: undefined,
-        desc: '',
+        modelDesc: '',
         operator: '',
         timestamp: null
       }

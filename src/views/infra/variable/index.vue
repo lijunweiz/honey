@@ -181,6 +181,7 @@ export default {
         variableNameZh: '',
         timestamp: new Date(),
         variableDesc: '',
+        dataSourceId: undefined,
         dataSourceName: '',
         dataSourceType: '',
         variableStatus: 0,
