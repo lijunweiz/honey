@@ -22,7 +22,7 @@
             @mouseenter="showOptionMenuMethod(node, data, 1)"
             @mouseleave="showOptionMenuMethod(node, data, 0)"
           >
-            <div class="text-overflow" style="display: inline-block;width: 180px">{{ node.label }}</div>
+            <div :title="data.label" class="text-overflow" style="display: inline-block;width: 180px">{{ data.label }}</div>
             <div v-show="showOptionMenuId===data.id" style="position: relative; z-index: 2000; float: right; width: 70px">
               <button v-show="data.isLeaf===1" type="button" class="el-button el-button--default" style="padding: 0;border: none" @click="handleCreateTreeNode(node, data)">
                 <i class="el-icon-plus" />
@@ -101,7 +101,7 @@
   </div>
 </template>
 <script>
-import { createTreeNode, fetchModelData } from '@/api/model'
+import { createTreeNode, fetchModelData, updateTreeNode } from '@/api/model'
 
 export default {
   data() {
@@ -151,16 +151,19 @@ export default {
     }
   },
   created() {
-    fetchModelData().then(response => {
-      if (response.data !== null) {
-        this.list = response.data.list
-        this.treeData = response.data.treeData
-        this.defaultExpandedKeys = Array.of(this.treeData[0].id)
-      }
-      this.listLoading = false
-    })
+    this.refresh()
   },
   methods: {
+    refresh() {
+      fetchModelData().then(response => {
+        if (response.data !== null) {
+          this.list = response.data.list
+          this.treeData = response.data.treeData
+          this.defaultExpandedKeys = Array.of(this.treeData[0].id)
+        }
+        this.listLoading = false
+      })
+    },
     filterNode(value, data) {
       if (!value) return true
       return data.label.indexOf(value) !== -1
@@ -209,7 +212,23 @@ export default {
       })
     },
     updateTreeNode() {
-
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          console.log(JSON.stringify(this.treeNode))
+          this.treeNode.operator = this.$store.getters.name
+          this.treeNode.timestamp = new Date()
+          updateTreeNode(this.treeNode).then((response) => {
+            console.log(JSON.stringify(response) + 'list.unshift: ' + JSON.stringify(this.list))
+            this.dialogFormVisible = false
+            this.refresh()
+            this.$notify({
+              message: '修改成功',
+              type: 'success',
+              duration: 2000
+            })
+          })
+        }
+      })
     },
     showTreeNodeView(dialogStatus, data) {
       this.resetTreeNode()
@@ -237,11 +256,12 @@ export default {
     handleUpdateTreeNode(node, data, e) {
       e.stopPropagation()// 禁止点击事件冒泡（阻止父组件响应点击事件）
       this.resetTreeNode()
+      this.treeNode.modelId = data.id
       if (node.isLeaf) {
         this.treeNode.modelType = node.parent.data.label
-        this.treeNode.modelName = node.label
+        this.treeNode.modelName = data.label
       } else {
-        this.treeNode.modelType = node.label
+        this.treeNode.modelType = data.label
       }
       this.treeNode.isLeaf = data.isLeaf
       this.treeNode.modelDesc = data.modelDesc

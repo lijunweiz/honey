@@ -15,3 +15,11 @@ export function createTreeNode(data) {
     data: data
   })
 }
+
+export function updateTreeNode(data) {
+  return request({
+    url: '/manage/model/update/tree/item',
+    method: 'post',
+    data: data
+  })
+}
