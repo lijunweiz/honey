@@ -95,6 +95,12 @@ export const constantRoutes = [
         name: 'Datasource',
         component: () => import('@/views/infra/datasource/index'),
         meta: { title: '数据源配置', icon: 'data-source' }
+      },
+      {
+        path: 'dict',
+        name: 'Dict',
+        component: () => import('@/views/infra/dict/index'),
+        meta: { title: '字典配置', icon: 'book' }
       }
     ]
   }

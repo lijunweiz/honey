@@ -235,7 +235,6 @@ export default {
         ]
         this.listLoading = false
       }
-      console.log(this.treeData)
     })
     this.getList()
     // init the default selected tab
