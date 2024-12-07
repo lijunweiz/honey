@@ -63,18 +63,17 @@
       <el-tabs v-model="activeName" type="card" style="margin-left: 30px;margin-right: 30px;">
         <el-tab-pane label="基本信息" name="basicInfo">
           <div>
-            <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="85px" hide-required-asterisk style="width: 600px;height: 312px">
+            <el-form ref="basicInfoDataForm" :rules="rules" :model="temp" label-position="left" label-width="85px" hide-required-asterisk style="width: 600px;height: 312px">
               <el-form-item label="数据源" prop="dataSourceName">
-                <el-input v-model="temp.dataSourceName" aria-placeholder="请输入数据源名称" />
+                <el-input v-model="temp.dataSourceName" :disabled="dialogStatus==='update'" aria-placeholder="请输入数据源名称" />
               </el-form-item>
               <el-form-item label="类型" prop="dataSourceType">
-                <el-select v-model="temp.dataSourceType" placeholder="请选择数据源类型" clearable class="filter-item" style="width: 150px;">
-                  <el-option v-for="item in dataSourceTypeOptions" :key="item" :label="item" :value="item" />
+                <el-select v-model="temp.dataSourceType" :disabled="dialogStatus==='update'" placeholder="请选择数据源类型" clearable filterable class="filter-item" style="width: 150px;">
+                  <el-option v-for="item in dataSourceTypeOptions" :key="item.itemCode" :label="item.itemValue" :value="item.itemCode" />
                 </el-select>
               </el-form-item>
               <el-form-item label="状态">
-                <el-tag v-if="dialogStatus==='create'">新建</el-tag>
-                <el-tag v-if="dialogStatus==='update'">更新</el-tag>
+                <el-tag>{{ dialogStatus==='create' ? '新建' : '更新' }}</el-tag>
               </el-form-item>
               <el-form-item label="描述">
                 <el-input v-model="temp.dataSourceDesc" :autosize="{ minRows: 2, maxRows: 8}" type="textarea" placeholder="请输入描述信息" />
@@ -88,7 +87,7 @@
         </el-tab-pane>
         <el-tab-pane label="参数配置" name="paramsConfig">
           <div>
-            <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="85px" style="width: 600px;height: 312px">
+            <el-form ref="paramsConfigDataForm" :rules="rules" :model="temp" label-position="left" label-width="85px" style="width: 600px;height: 312px">
               <el-form-item label="通讯协议" style="display: inline-block;">
                 <el-select v-model="temp.protocol" placeholder="通讯协议" class="filter-item" style="width: 150px;">
                   <el-option v-for="item in protocolOptions" :key="item" :label="item" :value="item" />
@@ -120,7 +119,7 @@
         </el-tab-pane>
         <el-tab-pane label="提取变量" name="extractVariable">
           <div>
-            <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="85px" style="width: 600px;height: 312px">
+            <el-form ref="extractVariableDataForm" :rules="rules" :model="temp" label-position="left" label-width="85px" style="width: 600px;height: 312px">
               <el-form-item label="提取变量">
                 <el-input v-model="temp.extractVariable" :autosize="{ minRows: 2, maxRows: 8}" type="textarea" placeholder="请输入返回值中需要提取的变量名称, 多个变量用逗号分割" />
               </el-form-item>
@@ -177,9 +176,9 @@ export default {
     }
   },
   created() {
-    fetchDataSourceTypes().then(response => {
+    fetchDataSourceTypes({ 'itemName': 'dataSourceType' }).then(response => {
       if (response.data !== null) {
-        this.dataSourceTypeOptions = response.data.dataSourceTypeOptions
+        this.dataSourceTypeOptions = response.data
       }
     })
     this.getList()
@@ -201,21 +200,27 @@ export default {
       })
     },
     handleAdd() {
+      this.reset()
       this.dialogStatus = 'create'
+    },
+    reset() {
       this.dialogFormVisible = true
+      this.temp = {}
+      this.$nextTick(() => {
+        this.$refs['basicInfoDataForm'].clearValidate()
+        this.$refs['paramsConfigDataForm'].clearValidate()
+        this.$refs['extractVariableDataForm'].clearValidate()
+      })
     },
     handleFilter() {
       this.getList()
     },
     handleUpdate(row) {
+      this.reset()
       this.temp = Object.assign({}, row) // copy obj
       this.temp.timestamp = new Date(this.temp.timestamp)
       this.temp.updateTime = new Date()
       this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
     },
     publishDataSource(row, index) {
       publishDataSource({ 'dataSourceId': row.dataSourceId, 'dataSourceStatus': 1 }).then(() => {
@@ -230,41 +235,53 @@ export default {
     handleDelete() {
       console.log('handleDelete')
     },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
+    validateForm() {
+      this.$refs['basicInfoDataForm'].validate((valid) => {
         if (valid) {
-          this.temp.author = this.$store.getters.name
-          this.temp.timestamp = new Date()
-          createDataSource(this.temp).then(() => {
-            console.log('list.unshift: ' + JSON.stringify(this.list))
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              message: '添加成功',
-              type: 'success',
-              duration: 2000
-            })
+          this.$refs['paramsConfigDataForm'].validate((valid) => {
+            if (valid) {
+              this.$refs['extractVariableDataForm'].validate((valid) => {
+                if (valid) {
+                  return true
+                }
+              })
+            }
           })
         }
       })
+      return false
+    },
+    createData() {
+      if (this.validateForm()) {
+        this.temp.author = this.$store.getters.name
+        this.temp.timestamp = new Date()
+        createDataSource(this.temp).then(() => {
+          console.log('list.unshift: ' + JSON.stringify(this.list))
+          this.getList()
+          this.dialogFormVisible = false
+          this.$notify({
+            message: '添加成功',
+            type: 'success',
+            duration: 2000
+          })
+        })
+      }
     },
     updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.author = this.$store.getters.name
-          this.temp.timestamp = new Date()
-          updateDataSource(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: '修改成功',
-              type: 'success',
-              duration: 2000
-            })
+      if (this.validateForm()) {
+        this.temp.author = this.$store.getters.name
+        this.temp.timestamp = new Date()
+        updateDataSource(this.temp).then(() => {
+          this.getList()
+          this.dialogFormVisible = false
+          this.$notify({
+            title: 'Success',
+            message: '修改成功',
+            type: 'success',
+            duration: 2000
           })
-        }
-      })
+        })
+      }
     }
   }
 }

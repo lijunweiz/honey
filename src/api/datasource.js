@@ -1,9 +1,10 @@
 import request from '@/utils/request'
 
-export function fetchDataSourceTypes() {
+export function fetchDataSourceTypes(query) {
   return request({
-    url: '/manage/datasource/types',
-    method: 'get'
+    url: '/manage/dict/query',
+    method: 'get',
+    params: query
   })
 }
 

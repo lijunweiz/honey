@@ -19,7 +19,7 @@
         <div class="filter-container">
           <el-input v-model="listQuery.variableNameEn" placeholder="变量英文" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
           <el-select v-model="listQuery.dataSourceType" class="filter-item" clearable filterable placeholder="请选择类型">
-            <el-option v-for="item in dataSourceTypeOptions" :key="item" :label="item" :value="item" />
+            <el-option v-for="item in dataSourceTypeOptions" :key="item.itemCode" :label="item.itemValue" :value="item.itemCode" />
           </el-select>
           <el-button v-waves class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
           <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">添加</el-button>
@@ -112,7 +112,7 @@
             </el-form-item>
             <el-form-item label="数据源类型">
               <el-select v-model="temp.dataSourceType" class="filter-item" filterable placeholder="请选择" :disabled="dialogStatus!=='create'" @change="fetchDataSourceNames">
-                <el-option v-for="item in dataSourceTypeOptions" :key="item" :label="item" :value="item" />
+                <el-option v-for="item in dataSourceTypeOptions" :key="item.itemCode" :label="item.itemValue" :value="item.itemCode" />
               </el-select>
             </el-form-item>
             <el-form-item label="数据源名称">
@@ -218,17 +218,17 @@ export default {
     }
   },
   created() {
-    fetchDataSourceTypes().then(response => {
-      if (response.data !== null && response.data.dataSourceTypeOptions !== undefined) {
-        this.dataSourceTypeOptions = response.data.dataSourceTypeOptions
+    fetchDataSourceTypes({ 'itemName': 'dataSourceType' }).then(response => {
+      if (response.data !== null) {
+        this.dataSourceTypeOptions = response.data
         this.treeData = [
           {
             id: -1,
             label: '类型',
-            children: response.data.dataSourceTypeOptions.map(function(item, index) {
+            children: response.data.map(function(item, index) {
               return {
-                id: index,
-                label: item
+                id: item.itemCode,
+                label: item.itemValue
               }
             })
           }
@@ -345,6 +345,7 @@ export default {
         if (response.data !== null) {
           this.dataSourceNameOptions = response.data.dataSourceNameOptions
         }
+        this.temp.dataSourceName = undefined
       })
     },
     handleDelete(row, index) {

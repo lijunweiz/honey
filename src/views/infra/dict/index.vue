@@ -218,13 +218,13 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           createDict(this.temp).then(() => {
-            this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
               message: '添加成功',
               type: 'success',
               duration: 2000
             })
+            this.getList()
           })
         }
       })
