@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-container>
       <el-aside width="180px">
-        <el-input v-model="filterText" placeholder="搜索" />
+        <el-input v-model="filterText" clearable placeholder="搜索" />
         <el-tree
           ref="tree"
           class="filter-tree"
@@ -17,7 +17,7 @@
       </el-aside>
       <el-main style="padding: 0 0 0 10px;">
         <div class="filter-container">
-          <el-input v-model="listQuery.variableNameEn" placeholder="变量英文" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+          <el-input v-model="listQuery.variableNameEn" clearable placeholder="变量英文" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
           <el-select v-model="listQuery.dataSourceType" class="filter-item" clearable filterable placeholder="请选择类型">
             <el-option v-for="item in dataSourceTypeOptions" :key="item.itemCode" :label="item.itemValue" :value="item.itemCode" />
           </el-select>
@@ -53,7 +53,7 @@
           </el-table-column>
           <el-table-column label="类型" width="180px" align="center">
             <template slot-scope="{row}">
-              <span>{{ row.dataSourceType }}</span>
+              <span>{{ row.dataSourceType | dataSourceTypeFilter(dataSourceTypeOptions) }}</span>
             </template>
           </el-table-column>
           <el-table-column label="需求名称" min-width="180px" align="center">
@@ -156,7 +156,15 @@ export default {
   components: { Pagination },
   directives: { waves },
   filters: {
-    variableStatusFilter
+    variableStatusFilter,
+    dataSourceTypeFilter(value, list) {
+      for (const item of list) {
+        if (item.itemCode === value) {
+          return item.itemValue
+        }
+      }
+      return ''
+    }
   },
   data() {
     return {
