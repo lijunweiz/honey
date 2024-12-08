@@ -278,7 +278,7 @@ export default {
       if (this.loading) {
         return
       }
-      this.$confirm('确定要提交表单吗？')
+      this.$confirm('确定要提交吗？')
         .then(_ => {
           this.loading = true
           this.timer = setTimeout(() => {
@@ -294,7 +294,10 @@ export default {
             }, 400)
           }, 1000)
         })
-        .catch(_ => {})
+        .catch(() => {
+          this.resetTemp()
+          this.dialogFormVisible = false
+        })
     },
     cancelForm() {
       this.loading = false
