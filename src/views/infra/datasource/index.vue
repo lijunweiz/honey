@@ -260,10 +260,18 @@ export default {
           this.getList()
           this.dialogFormVisible = false
           this.$notify({
+            title: 'Success',
             message: '添加成功',
             type: 'success',
             duration: 2000
           })
+        })
+      } else {
+        this.$notify({
+          title: 'Warning',
+          message: '请检查数据',
+          type: 'warning',
+          duration: 2000
         })
       }
     },
@@ -280,6 +288,13 @@ export default {
             type: 'success',
             duration: 2000
           })
+        })
+      } else {
+        this.$notify({
+          title: 'Warning',
+          message: '请检查数据',
+          type: 'warning',
+          duration: 2000
         })
       }
     }
