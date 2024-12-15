@@ -29,7 +29,7 @@
       </el-table-column>
       <el-table-column label="类型" width="110" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.dataSourceType }}</span>
+          <span>{{ scope.row.dataSourceType | dataSourceTypeFilter(dataSourceTypeOptions) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="描述" align="center">
@@ -135,10 +135,14 @@
   </div>
 </template>
 <script>
+import { dataSourceTypeFilter } from '@/filters'
 import { fetchDataSourceTypes, fetchList, createDataSource, updateDataSource, publishDataSource } from '@/api/datasource'
 
 export default {
   name: 'DataSource',
+  filters: {
+    dataSourceTypeFilter
+  },
   data() {
     return {
       list: [],

@@ -148,7 +148,7 @@ import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 // import TabPane from '@/components/TabPane'
-import { variableStatusMap, variableStatusFilter } from '@/filters'
+import { variableStatusMap, variableStatusFilter, dataSourceTypeFilter } from '@/filters'
 import { fetchDataSourceTypes, fetchDataSourceNames } from '@/api/datasource'
 
 export default {
@@ -157,14 +157,7 @@ export default {
   directives: { waves },
   filters: {
     variableStatusFilter,
-    dataSourceTypeFilter(value, list) {
-      for (const item of list) {
-        if (item.itemCode === value) {
-          return item.itemValue
-        }
-      }
-      return ''
-    }
+    dataSourceTypeFilter
   },
   data() {
     return {

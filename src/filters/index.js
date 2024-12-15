@@ -36,3 +36,12 @@ export function variableStatusFilter(key) {
   const tv = value.split('\|')
   return tv.length === 1 ? tv[0] : tv[1]
 }
+
+export function dataSourceTypeFilter(value, list) {
+  for (const item of list) {
+    if (item.itemCode === value) {
+      return item.itemValue
+    }
+  }
+  return ''
+}
