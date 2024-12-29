@@ -68,26 +68,26 @@
           </el-table-column>
           <el-table-column label="变量状态" class-name="status-col" width="80px" align="center">
             <template slot-scope="{row}">
-              <el-tag effect="dark" :type="row.variableStatus===0||row.variableStatus===1 ? '' : (row.variableStatus===2 ? 'success':'danger')">
+              <el-tag effect="dark" :type="row.variableStatus===0||row.variableStatus===1 ? '' : (row.variableStatus===2 ? 'success':(row.variableStatus=== 3 ? 'warning' : 'danger'))">
                 {{ row.variableStatus | variableStatusFilter }}
               </el-tag>
             </template>
           </el-table-column>
           <el-table-column label="操作" fixed="right" align="center" width="140" class-name="small-padding fixed-width">
             <template slot-scope="{row,$index}">
-              <el-dropdown size="medium" split-button type="primary">
+              <el-dropdown size="small" split-button type="primary">
                 操作
-                <el-dropdown-menu slot="dropdown" style="padding: 1px 0">
-                  <el-dropdown-item style="padding: 0 0">
+                <el-dropdown-menu slot="dropdown" style="padding: 0">
+                  <el-dropdown-item style="padding: 1px 0 1px 0">
                     <el-button type="primary" size="mini" @click="handleUpdate(row)">编辑</el-button>
                   </el-dropdown-item>
-                  <el-dropdown-item style="padding: 0 0">
+                  <el-dropdown-item style="padding: 0 0 1px 0">
                     <el-button :disabled="row.variableStatus === 1 || row.variableStatus === 2" size="mini" type="success" @click="handleModifyStatus(row,2)">发布</el-button>
                   </el-dropdown-item>
-                  <el-dropdown-item style="padding: 0 0">
-                    <el-button :disabled="row.variableStatus === 3" size="mini" type="danger" @click="handleModifyStatus(row,3)">停用</el-button>
+                  <el-dropdown-item style="padding: 0 0 1px 0">
+                    <el-button :disabled="row.variableStatus === 3" size="mini" type="warning" @click="handleModifyStatus(row,3)">停用</el-button>
                   </el-dropdown-item>
-                  <el-dropdown-item style="padding: 0 0">
+                  <el-dropdown-item style="padding: 0 0 1px 0">
                     <template>
                       <el-popconfirm title="确定删除吗？" @onConfirm="handleDelete(row,$index)">
                         <el-button slot="reference" :disabled="row.variableStatus === 4" size="mini" type="danger">删除</el-button>

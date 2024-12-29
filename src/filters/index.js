@@ -43,5 +43,5 @@ export function dataSourceTypeFilter(value, list) {
       return item.itemValue
     }
   }
-  return ''
+  return value
 }

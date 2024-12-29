@@ -1,7 +1,6 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.dictId" placeholder="字典ID" style="width: 200px;" class="filter-item" clearable @keyup.enter.native="handleFilter" />
       <el-input v-model="listQuery.typeCode" placeholder="字典类型" style="width: 200px;" class="filter-item" clearable @keyup.enter.native="handleFilter" />
       <el-input v-model="listQuery.itemCode" placeholder="字典编码" style="width: 200px;" class="filter-item" clearable @keyup.enter.native="handleFilter" />
       <el-input v-model="listQuery.itemName" placeholder="字典名称" style="width: 200px;" class="filter-item" clearable @keyup.enter.native="handleFilter" />
@@ -55,8 +54,8 @@
         </template>
       </el-table-column>
       <el-table-column label="字典状态" class-name="status-col" width="80px" align="center">
-        <template slot-scope="{row, $index}">
-          <div @dblclick="modifyStatus(row, $index)">
+        <template slot-scope="{row}">
+          <div @dblclick="modifyStatus(row)">
             <el-tooltip class="item" effect="dark" :content="row.itemStatus === 1 ? '双击停用' : '双击启用'" placement="right-end">
               <el-tag effect="dark" :type="row.itemStatus === 1 ? 'success':'danger'">
                 {{ row.itemStatus === 1 ? '启用' : '停用' }}
@@ -244,8 +243,6 @@ export default {
           const tempData = Object.assign({}, this.temp)
           tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
           updateDict(tempData).then(() => {
-            const index = this.list.findIndex(v => v.itemCode === this.temp.itemCode)
-            this.list.splice(index, 1, this.temp)
             this.dialogFormVisible = false
             this.$notify({
               title: 'Success',
@@ -253,11 +250,12 @@ export default {
               type: 'success',
               duration: 2000
             })
+            this.getList()
           })
         }
       })
     },
-    modifyStatus(row, index) {
+    modifyStatus(row) {
       const tempData = {
         dictId: row.dictId,
         itemCode: row.itemCode,
@@ -287,7 +285,6 @@ export default {
             } else {
               this.updateData()
             }
-            this.getList()
             // 动画关闭需要一定的时间
             setTimeout(() => {
               this.loading = false
