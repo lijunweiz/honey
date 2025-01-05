@@ -66,13 +66,13 @@ export const constantRoutes = [
         path: 'model',
         name: 'Model',
         component: () => import('@/views/flow/model'),
-        meta: { title: '模块配置' }
+        meta: { title: '模块配置', icon: 'model' }
       },
       {
         path: 'lf',
         name: 'lf',
         component: () => import('@/views/flow/lf'),
-        meta: { title: '执行组' }
+        meta: { title: '流程编排', icon: 'flow' }
       }
     ]
   },

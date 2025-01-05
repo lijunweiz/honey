@@ -15,6 +15,7 @@
           style="overflow: auto; padding-top: 7px;"
           @node-contextmenu="clickMenu"
           @node-click="openNodeData"
+          @check-change="handleCheckChange"
         >
           <div
             slot-scope="{ node, data }"
@@ -24,7 +25,7 @@
           >
             <div :title="data.label" class="text-overflow" style="display: inline-block;width: 180px">{{ data.label }}</div>
             <div v-show="showOptionMenuId===data.id" style="position: relative; z-index: 2000; float: right; width: 70px">
-              <button v-show="data.isLeaf===1" type="button" class="el-button el-button--default" style="padding: 0;border: none" @click="handleCreateTreeNode(node, data)">
+              <button type="button" class="el-button el-button--default" style="padding: 0;border: none" @click="handleCreateTreeNode(node, data)">
                 <i class="el-icon-plus" />
               </button>
               <button type="button" class="el-button el-button--default" style="padding: 0;border: none" @click="handleUpdateTreeNode(node, data, $event)">
@@ -81,10 +82,10 @@
 
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%">
           <el-form ref="dataForm" :rules="rules" :model="treeNode" label-position="left" label-width="85px" hide-required-asterisk style="width: 400px; margin-left:50px;">
-            <el-form-item label="模型类型">
-              <el-input v-model="treeNode.modelType" />
+            <el-form-item label="策略组">
+              <el-input v-model="treeNode.modelType" :disabled="treeNode.isLeaf===1" />
             </el-form-item>
-            <el-form-item v-show="treeNode.isLeaf===1" label="模型名称">
+            <el-form-item v-show="treeNode.isLeaf===1" label="规则集名称">
               <el-input v-model="treeNode.modelName" />
             </el-form-item>
             <el-form-item label="描述">
@@ -126,8 +127,8 @@ export default {
       dialogStatus: 'create',
       dialogFormVisible: false,
       rules: {
-        modelType: [{ required: true, message: '模型类型不能为空', trigger: 'blur' }],
-        modelName: [{ required: true, message: '模型名称不能为空', trigger: 'blur' }],
+        modelType: [{ required: true, message: '策略组不能为空', trigger: 'blur' }],
+        modelName: [{ required: true, message: '规则集名称不能为空', trigger: 'blur' }],
         modelDesc: [{ required: true, message: '描述信息不能为空', trigger: 'blur' }]
       },
       treeNode: {
@@ -159,10 +160,31 @@ export default {
         if (response.data !== null) {
           this.list = response.data.list
           this.treeData = response.data.treeData
-          this.defaultExpandedKeys = Array.of(this.treeData[0].id)
+          if (this.defaultExpandedKeys.length === 0) {
+            this.defaultExpandedKeys = Array.of(this.treeData[0].id)
+          }
         }
         this.listLoading = false
       })
+      this.$nextTick(() => {
+        this.restoreExpandedNodes()
+      })
+    },
+    restoreExpandedNodes() {
+      // 在数据刷新后还原展开的节点
+      this.$refs.tree.setCheckedKeys(this.defaultExpandedKeys)
+    },
+    handleCheckChange(data, checked, node) { // todo treedata刷新后须保持上次tree展开状态
+      console.log(this.defaultExpandedKeys)
+      // 节点选中状态变化时保存节点id
+      if (checked) {
+        this.defaultExpandedKeys.push(node.id)
+      } else {
+        const index = this.defaultExpandedKeys.indexOf(data.id)
+        if (index > -1) {
+          this.defaultExpandedKeys.splice(index, 1)
+        }
+      }
     },
     filterNode(value, data) {
       if (!value) return true
@@ -192,13 +214,6 @@ export default {
           this.treeNode.timestamp = new Date()
           createTreeNode(this.treeNode).then((response) => {
             console.log(JSON.stringify(response) + 'list.unshift: ' + JSON.stringify(this.list))
-            if (this.treeNode.isLeaf === 1) {
-              this.treeNode.modelId = response.data
-              this.list.push(this.treeNode)
-              this.total = this.total + 1
-            } else {
-              this.treeData.push({ 'id': response.data, 'label': this.treeNode.modelType, 'isLeaf': this.treeNode.isLeaf })
-            }
             this.timestamp = this.timestamp + 1// 刷新问题
             this.tableKey = this.tableKey + 1
             this.dialogFormVisible = false
@@ -207,6 +222,7 @@ export default {
               type: 'success',
               duration: 2000
             })
+            this.refresh()
           })
         }
       })
@@ -220,12 +236,12 @@ export default {
           updateTreeNode(this.treeNode).then((response) => {
             console.log(JSON.stringify(response) + 'list.unshift: ' + JSON.stringify(this.list))
             this.dialogFormVisible = false
-            this.refresh()
             this.$notify({
               message: '修改成功',
               type: 'success',
               duration: 2000
             })
+            this.refresh()
           })
         }
       })
@@ -238,7 +254,7 @@ export default {
     },
     handleCreateTreeNode(node, data) {
       this.resetTreeNode()
-      if (node == null && data == null) {
+      if (node == null && data == null) { // 新增策略组
         this.treeNode.isLeaf = 0
       } else {
         this.$nextTick(() => {
@@ -246,8 +262,10 @@ export default {
         })
         if (node.isLeaf) {
           this.treeNode.modelType = node.parent.data.label
+        } else {
+          this.treeNode.modelType = node.data.label
         }
-        this.treeNode.isLeaf = data.isLeaf
+        this.treeNode.isLeaf = 1 // 新增叶子节点
       }
 
       this.dialogStatus = 'create'
