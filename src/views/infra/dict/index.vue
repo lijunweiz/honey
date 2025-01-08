@@ -43,16 +43,6 @@
           <span>{{ row.itemDesc }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" min-width="80px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.createdTime }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新时间" min-width="80px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.updateTime }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="字典状态" class-name="status-col" width="80px" align="center">
         <template slot-scope="{row}">
           <div @dblclick="modifyStatus(row)">

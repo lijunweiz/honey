@@ -25,7 +25,7 @@
           >
             <div :title="data.label" class="text-overflow" style="display: inline-block;width: 180px">{{ data.label }}</div>
             <div v-show="showOptionMenuId===data.id" style="position: relative; z-index: 2000; float: right; width: 70px">
-              <button type="button" class="el-button el-button--default" style="padding: 0;border: none" @click="handleCreateTreeNode(node, data)">
+              <button type="button" class="el-button el-button--default" style="padding: 0;border: none" @click="handleCreateTreeNode(node, data, $event)">
                 <i class="el-icon-plus" />
               </button>
               <button type="button" class="el-button el-button--default" style="padding: 0;border: none" @click="handleUpdateTreeNode(node, data, $event)">
@@ -64,7 +64,7 @@
               <span>{{ row.modelDesc }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="作者" width="180px" align="center">
+          <el-table-column label="作者" width="120px" align="center">
             <template slot-scope="{row}">
               <span>{{ row.operator }}</span>
             </template>
@@ -252,7 +252,10 @@ export default {
       this.dialogFormVisible = true
       this.treeNodeTemp = data
     },
-    handleCreateTreeNode(node, data) {
+    handleCreateTreeNode(node, data, e) {
+      if (e !== undefined) {
+        e.stopPropagation()// 禁止点击事件冒泡（阻止父组件响应点击事件）
+      }
       this.resetTreeNode()
       if (node == null && data == null) { // 新增策略组
         this.treeNode.isLeaf = 0

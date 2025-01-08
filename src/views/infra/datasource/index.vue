@@ -59,7 +59,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="40%">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="43%">
       <el-tabs v-model="activeName" type="card" style="margin-left: 30px;margin-right: 30px;">
         <el-tab-pane label="基本信息" name="basicInfo">
           <div>
