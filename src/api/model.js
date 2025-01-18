@@ -23,3 +23,11 @@ export function updateTreeNode(data) {
     data: data
   })
 }
+// todo
+export function deleteTreeNode(data) {
+  return request({
+    url: '/manage/model/update/tree/item',
+    method: 'post',
+    data: data
+  })
+}

@@ -31,6 +31,9 @@
               <button type="button" class="el-button el-button--default" style="padding: 0;border: none" @click="handleUpdateTreeNode(node, data, $event)">
                 <i class="el-icon-edit" />
               </button>
+              <button v-if="false" type="button" class="el-button el-button--default" style="padding: 0;border: none" @click="handleDeleteTreeNode(node, data, $event)">
+                <i class="el-icon-delete" />
+              </button><!--todo-->
             </div>
           </div>
         </el-tree>
@@ -49,12 +52,12 @@
           style="width: 100%; margin-top: 12px"
         >
           <el-table-column label="序号" fixed="left" prop="id" type="index" sortable="custom" align="center" width="95px" />
-          <el-table-column label="模型类型" fixed="left" width="150px" align="center">
+          <el-table-column label="策略组" fixed="left" width="150px" align="center">
             <template slot-scope="{row}">
               <span>{{ row.modelType }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="模型名称" width="150px" align="center">
+          <el-table-column label="策略名称" width="150px" align="center">
             <template slot-scope="{row}">
               <span>{{ row.modelName }}</span>
             </template>
@@ -70,16 +73,12 @@
             </template>
           </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding">
-            <template slot-scope="{row,$index}">
-              <el-button type="primary" size="mini" @click="handleUpdate(row)">编排</el-button>
-              <el-popconfirm title="确定发布吗？" style="margin: 0 10px;" @onConfirm="publishDataSource(row,$index)">
-                <el-button slot="reference" size="mini" :disabled="row.dataSourceStatus!==0" type="success">发布</el-button>
-              </el-popconfirm>
-              <el-button slot="reference" size="mini">试算</el-button>
+            <template slot-scope="{row}">
+              <el-button type="primary" size="mini" @click="operation(row)">操作</el-button>
             </template>
           </el-table-column>
         </el-table>
-
+        <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%">
           <el-form ref="dataForm" :rules="rules" :model="treeNode" label-position="left" label-width="85px" hide-required-asterisk style="width: 400px; margin-left:50px;">
             <el-form-item label="策略组">
@@ -102,14 +101,21 @@
   </div>
 </template>
 <script>
+import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import { createTreeNode, fetchModelData, updateTreeNode } from '@/api/model'
 
 export default {
+  name: 'Model',
+  components: { Pagination },
   data() {
     return {
       filterText: '',
       defaultExpandedKeys: [],
       treeData: [],
+      listQuery: {
+        page: 1,
+        limit: 10
+      },
       defaultProps: {
         children: 'children',
         label: 'label'
@@ -152,14 +158,16 @@ export default {
     }
   },
   created() {
-    this.refresh()
+    this.getList()
   },
   methods: {
-    refresh() {
-      fetchModelData().then(response => {
+    getList() {
+      this.listLoading = true
+      fetchModelData(this.listQuery).then(response => {
         if (response.data !== null) {
-          this.list = response.data.list
           this.treeData = response.data.treeData
+          this.list = response.data.list
+          this.total = response.data.total
           if (this.defaultExpandedKeys.length === 0) {
             this.defaultExpandedKeys = Array.of(this.treeData[0].id)
           }
@@ -222,7 +230,7 @@ export default {
               type: 'success',
               duration: 2000
             })
-            this.refresh()
+            this.getList()
           })
         }
       })
@@ -241,7 +249,7 @@ export default {
               type: 'success',
               duration: 2000
             })
-            this.refresh()
+            this.getList()
           })
         }
       })
@@ -289,6 +297,9 @@ export default {
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
     },
+    handleDeleteTreeNode(node, data, e) {
+      e.stopPropagation()// 禁止点击事件冒泡（阻止父组件响应点击事件）
+    },
     resetTreeNode() {
       this.treeNode = {
         modelType: '',
@@ -299,7 +310,7 @@ export default {
         timestamp: null
       }
     },
-    publishDataSource() {
+    operation(row) {
       console.log('publishDataSource')
     }
   }

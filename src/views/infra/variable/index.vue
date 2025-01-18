@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-container>
       <el-aside width="180px">
-        <el-input v-model="filterText" clearable placeholder="搜索" />
+        <!--        <el-input v-model="filterText" clearable placeholder="搜索" />-->
         <el-tree
           ref="tree"
           class="filter-tree"
@@ -225,7 +225,7 @@ export default {
         this.treeData = [
           {
             id: -1,
-            label: '类型',
+            label: '变量类型',
             children: response.data.map(function(item, index) {
               return {
                 id: item.itemCode,

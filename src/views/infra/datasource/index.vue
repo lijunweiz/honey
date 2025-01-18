@@ -5,7 +5,7 @@
         <el-button class="filter-item" style="margin-bottom: 12px;" type="primary" @click="handleAdd">新增</el-button>
       </div>
       <div style="float: right">
-        <el-input v-model="dsQuery.dataSourceName" placeholder="请输入数据源名称" style="width: 180px;" clearable class="filter-item" @keyup.enter.native="handleFilter" />
+        <el-input v-model="listQuery.dataSourceName" placeholder="请输入数据源名称" style="width: 180px;" clearable class="filter-item" @keyup.enter.native="handleFilter" />
         <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       </div>
     </div>
@@ -59,6 +59,7 @@
         </template>
       </el-table-column>
     </el-table>
+    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="43%">
       <el-tabs v-model="activeName" type="card" style="margin-left: 30px;margin-right: 30px;">
         <el-tab-pane label="基本信息" name="basicInfo">
@@ -137,17 +138,22 @@
 <script>
 import { dataSourceTypeFilter } from '@/filters'
 import { fetchDataSourceTypes, fetchList, createDataSource, updateDataSource, publishDataSource } from '@/api/datasource'
+import Pagination from '@/components/Pagination/index'
 
 export default {
   name: 'DataSource',
+  components: { Pagination },
   filters: {
     dataSourceTypeFilter
   },
   data() {
     return {
       list: [],
+      total: 0,
       listLoading: true,
-      dsQuery: {
+      listQuery: {
+        page: 1,
+        limit: 10,
         dataSourceName: ''
       },
       textMap: {
@@ -195,9 +201,10 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.dsQuery).then(response => {
+      fetchList(this.listQuery).then(response => {
         if (response.data !== null && response.data.list !== undefined) {
           this.list = response.data.list
+          this.total = response.data.total
         }
 
         this.listLoading = false
