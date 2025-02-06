@@ -8,6 +8,7 @@
         <tags-view v-if="needTagsView" />
       </div>
       <app-main />
+      <Footer />
     </div>
     <!--    <div class="main-container">-->
     <!--      <div :class="{'fixed-header':fixedHeader}">-->
@@ -22,6 +23,7 @@
 import { AppMain, Navbar, Sidebar, TagsView } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 import { mapState } from 'vuex'
+import Footer from '@/components/Footer'
 
 export default {
   name: 'Layout',
@@ -29,7 +31,8 @@ export default {
     AppMain,
     Navbar,
     Sidebar,
-    TagsView
+    TagsView,
+    Footer
   },
   mixins: [ResizeMixin],
   computed: {
