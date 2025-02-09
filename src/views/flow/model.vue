@@ -271,7 +271,7 @@ export default {
         this.$nextTick(() => {
           this.$refs['dataForm'].clearValidate()
         })
-        if (node.isLeaf) {
+        if (node.data.isLeaf) {
           this.treeNode.modelType = node.parent.data.label
         } else {
           this.treeNode.modelType = node.data.label
@@ -286,7 +286,7 @@ export default {
       e.stopPropagation()// 禁止点击事件冒泡（阻止父组件响应点击事件）
       this.resetTreeNode()
       this.treeNode.modelId = data.id
-      if (node.isLeaf) {
+      if (node.data.isLeaf) {
         this.treeNode.modelType = node.parent.data.label
         this.treeNode.modelName = data.label
       } else {
