@@ -103,6 +103,11 @@ export const constantRoutes = [
         meta: { title: '字典配置', icon: 'book' }
       }
     ]
+  },
+
+  {
+    path: '*',
+    redirect: '/404'
   }
 
   // {
