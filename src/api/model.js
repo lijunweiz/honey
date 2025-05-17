@@ -23,11 +23,19 @@ export function updateTreeNode(data) {
     data: data
   })
 }
-// todo
+
 export function deleteTreeNode(data) {
   return request({
-    url: '/manage/model/update/tree/item',
+    url: '/manage/model/delete/tree/item',
     method: 'post',
     data: data
+  })
+}
+
+export function queryModelVersionList(query) {
+  return request({
+    url: '/manage/model/query',
+    method: 'get',
+    params: query
   })
 }

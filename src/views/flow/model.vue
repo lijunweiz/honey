@@ -74,7 +74,7 @@
           </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding">
             <template slot-scope="{row}">
-              <el-button type="primary" size="mini" @click="operation(row)">操作</el-button>
+              <el-button type="primary" size="mini" @click="operation(row)">查看</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -98,15 +98,17 @@
         </el-dialog>
       </el-main>
     </el-container>
+    <modelVersionList :parent-drawer.sync="parentDrawer" :model-id="modelId" :model-type="modelType" :model-name="modelName" />
   </div>
 </template>
 <script>
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import { createTreeNode, fetchModelData, updateTreeNode } from '@/api/model'
+import ModelVersionList from '@/views/flow/components/modelVersionList.vue'
 
 export default {
   name: 'Model',
-  components: { Pagination },
+  components: { Pagination, ModelVersionList },
   data() {
     return {
       filterText: '',
@@ -146,7 +148,11 @@ export default {
         operator: '',
         timestamp: null
       },
-      treeNodeTemp: null
+      treeNodeTemp: null,
+      parentDrawer: false,
+      modelId: -1,
+      modelType: '',
+      modelName: ''
     }
   },
   watch: {
@@ -311,7 +317,10 @@ export default {
       }
     },
     operation(row) {
-      console.log('publishDataSource')
+      this.modelId = row.modelId
+      this.modelType = row.modelType
+      this.modelName = row.modelName
+      this.parentDrawer = !this.parentDrawer
     }
   }
 }
