@@ -74,7 +74,7 @@
           </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding">
             <template slot-scope="{row}">
-              <el-button type="primary" size="mini" @click="operation(row)">查看</el-button>
+              <el-button type="primary" size="mini" @click="operation(row)">操作</el-button>
             </template>
           </el-table-column>
         </el-table>

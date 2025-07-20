@@ -20,8 +20,8 @@
       <el-main style="padding-top: 0">
         <div style="max-height: 80vh; overflow-y: auto">
           <!-- 全局逻辑运算符 -->
-          <div v-if="ruleGroups.length > 1" class="global-operator" style="height: 60px">
-            <label>规则组间关系:</label>
+          <div v-if="ruleGroups.length > 1" class="global-operator" style="height: 70px">
+            <label style="padding-left: 2px;">组间关系:</label>
             <el-select v-model="groupOperator" placeholder="请选择">
               <el-option value="并且" label="并且" />
               <el-option value="或者" label="或者" />
@@ -31,6 +31,7 @@
           <!-- 规则组列表 -->
           <div v-for="(group, groupIndex) in ruleGroups" :key="group.id" class="rule-group">
             <div class="group-header">
+              <label style="padding-right: 10px;">组内关系:</label>
               <el-select v-model="group.operator" placeholder="请选择">
                 <el-option value="并且" label="并且" />
                 <el-option value="或者" label="或者" />
