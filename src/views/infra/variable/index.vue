@@ -19,7 +19,7 @@
         <div class="filter-container">
           <el-input v-model="listQuery.variableNameEn" clearable placeholder="变量英文" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
           <el-select v-model="listQuery.dataSourceType" class="filter-item" clearable filterable placeholder="请选择类型">
-            <el-option v-for="item in dataSourceTypeOptions" :key="item.itemCode" :label="item.itemValue" :value="item.itemCode" />
+            <el-option v-for="item in dataSourceTypeOptions" :key="item.itemName" :label="item.itemName" :value="item.itemName" />
           </el-select>
           <el-button v-waves class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
           <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">添加</el-button>
@@ -53,7 +53,7 @@
           </el-table-column>
           <el-table-column label="类型" width="180px" align="center">
             <template slot-scope="{row}">
-              <span>{{ row.dataSourceType | dataSourceTypeFilter(dataSourceTypeOptions) }}</span>
+              <span>{{ row.dataSourceType }}</span>
             </template>
           </el-table-column>
           <el-table-column label="需求名称" min-width="180px" align="center">
@@ -112,7 +112,7 @@
             </el-form-item>
             <el-form-item label="数据源类型">
               <el-select v-model="temp.dataSourceType" class="filter-item" filterable placeholder="请选择" :disabled="dialogStatus!=='create'" @change="fetchDataSourceNames">
-                <el-option v-for="item in dataSourceTypeOptions" :key="item.itemCode" :label="item.itemValue" :value="item.itemCode" />
+                <el-option v-for="item in dataSourceTypeOptions" :key="item.itemName" :label="item.itemName" :value="item.itemName" />
               </el-select>
             </el-form-item>
             <el-form-item label="数据源名称">
@@ -219,7 +219,7 @@ export default {
     }
   },
   created() {
-    fetchDataSourceTypes({ 'itemName': 'dataSourceType' }).then(response => {
+    fetchDataSourceTypes({ 'dictCode': 'dataSourceType' }).then(response => {
       if (response.data !== null) {
         this.dataSourceTypeOptions = response.data
         this.treeData = [
@@ -228,8 +228,8 @@ export default {
             label: '变量类型',
             children: response.data.map(function(item, index) {
               return {
-                id: item.itemCode,
-                label: item.itemValue
+                id: item.itemValue,
+                label: item.itemName
               }
             })
           }
@@ -364,7 +364,7 @@ export default {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
         const tHeader = ['变量英文', '变量中文', '变量描述', '变量状态', '更新时间']
-        const filterVal = ['variableNameEn', 'variableNameZh', 'variableDesc', 'variableStatus', 'updateTime']
+        const filterVal = ['variableNameEn', 'variableNameZh', 'variableDesc', 'variableStatus', 'updatedTime']
         const data = this.formatJson(filterVal)
         excel.export_json_to_excel({
           header: tHeader,

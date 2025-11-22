@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function fetchDataSourceTypes(query) {
   return request({
-    url: '/manage/dict/query',
+    url: '/manage/dict/item/query',
     method: 'get',
     params: query
   })

@@ -22,14 +22,14 @@
           {{ scope.$index+1 }}
         </template>
       </el-table-column>
+      <el-table-column label="类型" width="110" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.dataSourceType }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="数据源名称" width="200" align="center">
         <template slot-scope="scope">
           {{ scope.row.dataSourceName }}
-        </template>
-      </el-table-column>
-      <el-table-column label="类型" width="110" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.dataSourceType | dataSourceTypeFilter(dataSourceTypeOptions) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="描述" align="center">
@@ -70,13 +70,13 @@
               </el-form-item>
               <el-form-item label="类型" prop="dataSourceType">
                 <el-select v-model="temp.dataSourceType" :disabled="dialogStatus==='update'" placeholder="请选择数据源类型" clearable filterable class="filter-item" style="width: 150px;">
-                  <el-option v-for="item in dataSourceTypeOptions" :key="item.itemCode" :label="item.itemValue" :value="item.itemCode" />
+                  <el-option v-for="item in dataSourceTypeOptions" :key="item.itemValue" :label="item.itemName" :value="item.itemValue" />
                 </el-select>
               </el-form-item>
               <el-form-item label="状态">
                 <el-tag>{{ dialogStatus==='create' ? '新建' : '更新' }}</el-tag>
               </el-form-item>
-              <el-form-item label="描述">
+              <el-form-item label="描述" prop="dataSourceDesc">
                 <el-input v-model="temp.dataSourceDesc" :autosize="{ minRows: 2, maxRows: 8}" type="textarea" placeholder="请输入描述信息" />
               </el-form-item>
             </el-form>
@@ -164,7 +164,9 @@ export default {
       dialogStatus: 'create',
       dialogFormVisible: false,
       rules: {
-        dataSourceName: [{ required: true, message: '数据源名称不能为空', trigger: 'blur' }]
+        dataSourceName: [{ required: true, message: '数据源名称不能为空', trigger: 'blur' }],
+        dataSourceType: [{ required: true, message: '数据源类型不能为空', trigger: 'blur' }],
+        dataSourceDesc: [{ required: true, message: '描述信息不能为空', trigger: 'blur' }]
       },
       temp: {
         timestamp: new Date(),
@@ -186,7 +188,7 @@ export default {
     }
   },
   created() {
-    fetchDataSourceTypes({ 'itemName': 'dataSourceType' }).then(response => {
+    fetchDataSourceTypes({ 'dictCode': 'dataSourceType' }).then(response => {
       if (response.data !== null) {
         this.dataSourceTypeOptions = response.data
       }
@@ -229,12 +231,12 @@ export default {
     handleUpdate(row) {
       this.reset()
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
-      this.temp.updateTime = new Date()
+      this.temp.timestamp = new Date()
+      this.temp.updatedTime = new Date()
       this.dialogStatus = 'update'
     },
     publishDataSource(row, index) {
-      publishDataSource({ 'dataSourceId': row.dataSourceId, 'dataSourceStatus': 1 }).then(() => {
+      publishDataSource({ 'id': row.id, 'dataSourceStatus': 1 }).then(() => {
         this.list[index].dataSourceStatus = 1
         this.$notify({
           message: '发布成功',
@@ -247,23 +249,25 @@ export default {
       console.log('handleDelete')
     },
     validateForm() {
-      this.$refs['basicInfoDataForm'].validate((valid) => {
-        if (valid) {
-          this.$refs['paramsConfigDataForm'].validate((valid) => {
-            if (valid) {
-              this.$refs['extractVariableDataForm'].validate((valid) => {
-                if (valid) {
-                  return true
-                }
-              })
-            }
-          })
-        }
+      return new Promise((resolve) => {
+        this.$refs['basicInfoDataForm'].validate((valid) => {
+          if (valid) {
+            this.$refs['paramsConfigDataForm'].validate((valid) => {
+              if (valid) {
+                this.$refs['extractVariableDataForm'].validate((valid) => {
+                  resolve(valid)
+                })
+              }
+            })
+          }
+        })
+        resolve(false)
       })
-      return false
     },
-    createData() {
-      if (this.validateForm()) {
+    async createData() {
+      const r = await this.validateForm()
+      if (r) {
+        this.temp.dataSourceStatus = 0
         this.temp.author = this.$store.getters.name
         this.temp.timestamp = new Date()
         createDataSource(this.temp).then(() => {
@@ -286,8 +290,9 @@ export default {
         })
       }
     },
-    updateData() {
-      if (this.validateForm()) {
+    async updateData() {
+      const r = this.validateForm()
+      if (r) {
         this.temp.author = this.$store.getters.name
         this.temp.timestamp = new Date()
         updateDataSource(this.temp).then(() => {

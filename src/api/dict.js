@@ -31,3 +31,34 @@ export function fetchDictStatus() {
   })
 }
 
+export function fetchItemList(query) {
+  return request({
+    url: '/manage/dict/item/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function createDictItem(data) {
+  return request({
+    url: '/manage/dict/item/create',
+    method: 'post',
+    data: data
+  })
+}
+
+export function updateDictItem(data) {
+  return request({
+    url: '/manage/dict/item/modify',
+    method: 'post',
+    data
+  })
+}
+
+export function fetchDictItemStatus() {
+  return request({
+    url: '/manage/dict/item/status',
+    method: 'get'
+  })
+}
+

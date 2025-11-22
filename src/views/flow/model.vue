@@ -227,7 +227,7 @@ export default {
           this.treeNode.operator = this.$store.getters.name
           this.treeNode.timestamp = new Date()
           createTreeNode(this.treeNode).then((response) => {
-            console.log(JSON.stringify(response) + 'list.unshift: ' + JSON.stringify(this.list))
+            console.log(JSON.stringify(response) + ',list.unshift: ' + JSON.stringify(this.list))
             this.timestamp = this.timestamp + 1// 刷新问题
             this.tableKey = this.tableKey + 1
             this.dialogFormVisible = false
@@ -317,7 +317,7 @@ export default {
       }
     },
     operation(row) {
-      this.modelId = row.modelId
+      this.id = row.id
       this.modelType = row.modelType
       this.modelName = row.modelName
       this.parentDrawer = !this.parentDrawer

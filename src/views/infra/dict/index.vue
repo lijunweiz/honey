@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.typeCode" placeholder="字典类型" style="width: 200px;" class="filter-item" clearable @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.itemCode" placeholder="字典编码" style="width: 200px;" class="filter-item" clearable @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.itemName" placeholder="字典名称" style="width: 200px;" class="filter-item" clearable @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.dictCode" placeholder="字典编码" style="width: 200px;" class="filter-item" clearable @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.dictValue" placeholder="字典名称" style="width: 200px;" class="filter-item" clearable @keyup.enter.native="handleFilter" />
       <el-button v-waves class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">添加</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-refresh" @click="getList">刷新</el-button>
     </div>
 
     <el-table
@@ -18,45 +18,32 @@
       style="width: 100%; margin-top: 12px"
     >
       <el-table-column label="序号" fixed="left" prop="id" type="index" sortable="custom" align="center" width="95px" />
-      <el-table-column label="字典类型" fixed="left" width="150px" align="center">
+      <el-table-column label="字典编码" fixed="left" width="180px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.typeCode }}</span>
+          <span>{{ row.dictCode }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="字典编码" width="150px" align="center">
+      <el-table-column label="字典值" width="180px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.itemCode }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="字典名称" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.itemName }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="字典值" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.itemValue }}</span>
+          <span>{{ row.dictValue }}</span>
         </template>
       </el-table-column>
       <el-table-column label="字典描述" min-width="180px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.itemDesc }}</span>
+          <span>{{ row.description }}</span>
         </template>
       </el-table-column>
       <el-table-column label="字典状态" class-name="status-col" width="80px" align="center">
         <template slot-scope="{row}">
-          <div @dblclick="modifyStatus(row)">
-            <el-tooltip class="item" effect="dark" :content="row.itemStatus === 1 ? '双击停用' : '双击启用'" placement="right-end">
-              <el-tag effect="dark" :type="row.itemStatus === 1 ? 'success':'danger'">
-                {{ row.itemStatus === 1 ? '启用' : '停用' }}
-              </el-tag>
-            </el-tooltip>
-          </div>
+          <el-tag effect="dark" :type="row.status === 1 ? 'success':'danger'">
+            {{ row.status === 1 ? '启用' : '停用' }}
+          </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" fixed="right" align="center" width="140" class-name="small-padding fixed-width">
+      <el-table-column label="操作" fixed="right" align="center" width="200px" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
           <el-button type="primary" size="small" @click="handleUpdate(row)">编辑</el-button>
+          <el-button size="small" @click="handleConfig(row)">配置</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -71,28 +58,19 @@
     >
       <div class="drawer-content">
         <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="85px" style="width: 400px; ">
-          <el-form-item label="字典类型" prop="typeCode">
-            <el-input v-model="temp.typeCode" :disabled="dialogStatus==='update'" />
+          <el-form-item label="字典编码" prop="dictCode">
+            <el-input v-model="temp.dictCode" :disabled="dialogStatus==='update'" />
           </el-form-item>
-          <el-form-item label="字典编码" prop="itemCode">
-            <el-input v-model="temp.itemCode" :disabled="dialogStatus==='update'" />
+          <el-form-item label="字典值" prop="dictValue">
+            <el-input v-model="temp.dictValue" />
           </el-form-item>
-          <el-form-item label="字典名称" prop="itemName">
-            <el-input v-model="temp.itemName" :disabled="dialogStatus==='update'" />
+          <el-form-item label="字典描述" prop="description">
+            <el-input v-model="temp.description" :autosize="{ minRows: 2, maxRows: 8}" type="textarea" placeholder="请输入" />
           </el-form-item>
-          <el-form-item label="字典值" prop="itemValue">
-            <el-input v-model="temp.itemValue" />
-          </el-form-item>
-          <el-form-item label="字典描述" prop="itemDesc">
-            <el-input v-model="temp.itemDesc" :autosize="{ minRows: 2, maxRows: 8}" type="textarea" placeholder="请输入" />
-          </el-form-item>
-          <el-form-item label="字典状态" prop="itemStatus">
-            <el-select v-model="temp.itemStatus" placeholder="请选择状态" class="filter-item" style="width: 120px;">
+          <el-form-item label="字典状态" prop="status">
+            <el-select v-model="temp.status" placeholder="请选择状态" class="filter-item" style="width: 120px;">
               <el-option v-for="item in dictStatusOptions" :key="item.status" :label="item.desc" :value="item.status" />
             </el-select>
-          </el-form-item>
-          <el-form-item label="顺序">
-            <el-input-number v-model="temp.sort" :min="1" :max="9999" />
           </el-form-item>
         </el-form>
         <div class="footer">
@@ -103,6 +81,7 @@
         </div>
       </div>
     </el-drawer>
+    <dict-item :parent-drawer.sync="parentDrawer" :dict-code="dictCode" :dict-value="dictValue" />
   </div>
 </template>
 
@@ -110,10 +89,11 @@
 import { fetchList, createDict, updateDict, fetchDictStatus } from '@/api/dict'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination'
+import DictItem from '@/views/infra/dict/item'
 
 export default {
   name: 'Dict',
-  components: { Pagination },
+  components: { DictItem, Pagination },
   directives: { waves },
   filters: {
   },
@@ -126,21 +106,23 @@ export default {
       listQuery: {
         page: 1,
         limit: 10,
-        dictId: undefined,
-        typeCode: undefined,
+        id: undefined,
+        dictCode: undefined,
         itemCode: undefined,
-        itemName: undefined
+        itemName: undefined,
+        itemValue: undefined
       },
       temp: {
-        dictId: undefined,
-        typeCode: undefined,
+        id: undefined,
+        dictCode: undefined,
+        dictValue: undefined,
         itemCode: undefined,
-        timestamp: new Date(),
         itemName: undefined,
         itemValue: undefined,
-        itemDesc: undefined,
-        itemStatus: undefined,
-        sort: undefined
+        status: 0,
+        sort: 0,
+        description: '',
+        timestamp: new Date()
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -150,16 +132,19 @@ export default {
         create: '添加'
       },
       rules: {
-        typeCode: [{ required: true, message: '类型编码不能为空', trigger: 'blur' }],
-        itemCode: [{ required: true, message: '字典编码不能为空', trigger: 'blur' }],
-        itemName: [{ required: true, message: '字典名称不能为空', trigger: 'blur' }],
-        itemValue: [{ required: true, message: '字典值不能为空', trigger: 'blur' }],
-        itemDesc: [{ required: true, message: '描述不能为空', trigger: 'blur' }],
-        itemStatus: [{ required: true, message: '状态必须选择', trigger: 'blur' }]
+        dictCode: [{ required: true, message: '字典编码不能为空', trigger: 'blur' }],
+        dictValue: [{ required: true, message: '字典值不能为空', trigger: 'blur' }],
+        itemCode: [{ required: true, message: '字典项编码不能为空', trigger: 'blur' }],
+        itemName: [{ required: true, message: '字典项名称不能为空', trigger: 'blur' }],
+        itemValue: [{ required: true, message: '字典项值不能为空', trigger: 'blur' }],
+        status: [{ required: true, message: '请选择字典状态', trigger: 'blur' }]
       },
       filterText: '',
       loading: false,
-      timer: null
+      timer: null,
+      parentDrawer: false,
+      dictCode: '',
+      dictValue: ''
     }
   },
   created() {
@@ -179,7 +164,7 @@ export default {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
         if (response.data !== null) {
-          this.list = response.data.items
+          this.list = response.data.list
           this.total = response.data.total
         }
 
@@ -192,7 +177,7 @@ export default {
     },
     resetTemp() {
       this.temp = {}
-      this.temp.itemStatus = 1
+      this.temp.status = 1
       this.temp.sort = 1
     },
     handleCreate() {
@@ -245,23 +230,6 @@ export default {
         }
       })
     },
-    modifyStatus(row) {
-      const tempData = {
-        dictId: row.dictId,
-        itemCode: row.itemCode,
-        itemName: row.itemName,
-        itemStatus: row.itemStatus === 1 ? 0 : 1
-      }
-      updateDict(tempData).then(() => {
-        this.$notify({
-          title: 'Success',
-          message: 'Update Successfully',
-          type: 'success',
-          duration: 2000
-        })
-        this.getList()
-      })
-    },
     handleCloseDrawer() {
       if (this.loading) {
         return
@@ -290,6 +258,13 @@ export default {
       this.loading = false
       this.dialogFormVisible = false
       clearTimeout(this.timer)
+    },
+
+    handleConfig(row) {
+      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.parentDrawer = true
+      this.dictCode = row.dictCode
+      this.dictValue = row.dictValue
     }
   }
 }
