@@ -80,14 +80,14 @@
         </el-table>
         <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%">
-          <el-form ref="dataForm" :rules="rules" :model="treeNode" label-position="left" label-width="85px" hide-required-asterisk style="width: 400px; margin-left:50px;">
-            <el-form-item label="策略组">
+          <el-form ref="dataForm" :rules="rules" :model="treeNode" label-position="left" label-width="85px" style="width: 400px; margin-left:50px;">
+            <el-form-item label="策略组" prop="modelType">
               <el-input v-model="treeNode.modelType" :disabled="treeNode.isLeaf===1" />
             </el-form-item>
-            <el-form-item v-show="treeNode.isLeaf===1" label="规则集名称">
+            <el-form-item v-show="treeNode.isLeaf===1" label="规则集名称" prop="modelName">
               <el-input v-model="treeNode.modelName" />
             </el-form-item>
-            <el-form-item label="描述">
+            <el-form-item label="描述" prop="modelDesc">
               <el-input v-model="treeNode.modelDesc" :autosize="{ minRows: 2, maxRows: 8}" type="textarea" placeholder="请输入描述信息" />
             </el-form-item>
           </el-form>

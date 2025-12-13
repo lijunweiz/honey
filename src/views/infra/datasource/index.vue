@@ -64,7 +64,7 @@
       <el-tabs v-model="activeName" type="card" style="margin-left: 30px;margin-right: 30px;">
         <el-tab-pane label="基本信息" name="basicInfo">
           <div>
-            <el-form ref="basicInfoDataForm" :rules="rules" :model="temp" label-position="left" label-width="85px" hide-required-asterisk style="width: 600px;height: 312px">
+            <el-form ref="basicInfoDataForm" :rules="rules" :model="temp" label-position="left" label-width="85px" style="width: 600px;height: 312px">
               <el-form-item label="数据源" prop="dataSourceName">
                 <el-input v-model="temp.dataSourceName" :disabled="dialogStatus==='update'" aria-placeholder="请输入数据源名称" />
               </el-form-item>

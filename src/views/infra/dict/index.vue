@@ -57,7 +57,7 @@
       :before-close="handleCloseDrawer"
     >
       <div class="drawer-content">
-        <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="85px" style="width: 400px; ">
+        <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="100px" style="width: 400px; ">
           <el-form-item label="字典编码" prop="dictCode">
             <el-input v-model="temp.dictCode" :disabled="dialogStatus==='update'" />
           </el-form-item>

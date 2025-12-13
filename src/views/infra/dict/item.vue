@@ -55,7 +55,7 @@
     </el-drawer>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="35%">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="85px" hide-required-asterisk style="width: 400px; margin-left:50px;">
+      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
         <el-form-item label="字典项编码" prop="itemCode">
           <el-input v-model="temp.itemCode" :disabled="dialogStatus==='update'" />
         </el-form-item>
