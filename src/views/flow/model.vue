@@ -67,12 +67,22 @@
               <span>{{ row.modelDesc }}</span>
             </template>
           </el-table-column>
+          <el-table-column label="创建时间" width="180px" align="center">
+            <template slot-scope="{row}">
+              <span>{{ row.createdTime }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="版本" width="120px" align="center">
+            <template>
+              <span>版本</span>
+            </template>
+          </el-table-column>
           <el-table-column label="作者" width="120px" align="center">
             <template slot-scope="{row}">
               <span>{{ row.operator }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding">
+          <el-table-column label="操作" fixed="right" width="120px" align="center" class-name="small-padding">
             <template slot-scope="{row}">
               <el-button type="primary" size="mini" @click="operation(row)">操作</el-button>
             </template>
@@ -80,7 +90,7 @@
         </el-table>
         <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%">
-          <el-form ref="dataForm" :rules="rules" :model="treeNode" label-position="left" label-width="85px" style="width: 400px; margin-left:50px;">
+          <el-form ref="dataForm" :rules="rules" :model="treeNode" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
             <el-form-item label="策略组" prop="modelType">
               <el-input v-model="treeNode.modelType" :disabled="treeNode.isLeaf===1" />
             </el-form-item>
@@ -98,17 +108,27 @@
         </el-dialog>
       </el-main>
     </el-container>
-    <modelVersionList :parent-drawer.sync="parentDrawer" :model-id="modelId" :model-type="modelType" :model-name="modelName" />
+    <!-- <modelVersionList :parent-drawer.sync="parentDrawer" :model-id="modelId" :model-type="modelType" :model-name="modelName" /> -->
+    <el-drawer
+      :title="ruleDrawerTitle"
+      :append-to-body="true"
+      :destroy-on-close="true"
+      :before-close="handleCloseRuleDrawer"
+      :visible.sync="ruleDrawer"
+      size="90%"
+    >
+      <rule :model-id.sync="modelId" />
+    </el-drawer>
   </div>
 </template>
 <script>
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
-import { createTreeNode, fetchModelData, updateTreeNode } from '@/api/model'
-import ModelVersionList from '@/views/flow/components/modelVersionList.vue'
+import { createTreeNode, fetchModelData, queryModelVersionList, updateTreeNode } from '@/api/model'
+import Rule from '@/views/flow/components/rule/rule.vue'
 
 export default {
   name: 'Model',
-  components: { Pagination, ModelVersionList },
+  components: { Pagination, Rule },
   data() {
     return {
       filterText: '',
@@ -149,7 +169,9 @@ export default {
         timestamp: null
       },
       treeNodeTemp: null,
-      parentDrawer: false,
+      // parentDrawer: false,
+      ruleDrawer: false,
+      ruleDrawerTitle: '',
       modelId: -1,
       modelType: '',
       modelName: ''
@@ -210,7 +232,12 @@ export default {
     },
     // 共三个参数，依次为：传递给 data 属性的数组中该节点所对应的对象、节点对应的 Node、节点组件本身
     openNodeData(item, node, element) {
-      console.log(JSON.stringify(item) + '\n' + node.toString() + '\n' + element.toString())
+      console.log('openNodeData: ' + JSON.stringify(item))
+      if (item.isLeaf === 1) {
+        this.modelType = node.parent.data.label
+        this.modelName = item.label
+        this.getModelVersionList()
+      }
     },
     showOptionMenuMethod(item, node, enter) {
       if (enter === 1) { // 鼠标进入
@@ -220,6 +247,16 @@ export default {
         this.showOptionMenuId = -1
         console.log('leave')
       }
+    },
+    getModelVersionList() {
+      this.listLoading = true
+      queryModelVersionList({ modelType: this.modelType, modelName: this.modelName }).then(response => {
+        if (response.data !== null) {
+          this.list = response.data.list
+          this.total = response.data.total
+        }
+        this.listLoading = false
+      })
     },
     createTreeNode() {
       this.$refs['dataForm'].validate((valid) => {
@@ -318,9 +355,19 @@ export default {
     },
     operation(row) {
       this.id = row.id
+      this.modelId = row.id
       this.modelType = row.modelType
       this.modelName = row.modelName
-      this.parentDrawer = !this.parentDrawer
+      this.ruleDrawer = !this.ruleDrawer
+      this.ruleDrawerTitle = this.modelType + ' - ' + this.modelName + ' - 规则编辑'
+      console.log(this.ruleDrawer)
+    },
+    handleCloseRuleDrawer(done) {
+      this.$confirm('确认关闭吗?')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {})
     }
   }
 }
