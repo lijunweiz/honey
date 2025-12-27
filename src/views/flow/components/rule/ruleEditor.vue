@@ -20,7 +20,7 @@
           <!-- 条件编辑 -->
           <el-form label-width="80px" size="mini">
             <el-form-item label="条件">
-              <condition-group :group="rule.condition" />
+              <condition-group :group="rule.condition" :variable-list="variableList" />
             </el-form-item>
 
             <!-- 结果 -->
@@ -64,9 +64,9 @@
       </el-collapse>
 
       <!-- ELSE 兜底规则 -->
-      <el-divider content-position="left">否则（兜底规则）</el-divider>
+      <el-divider content-position="left">否则</el-divider>
       <el-form size="mini" label-width="80px">
-        <el-form-item label="兜底结果">
+        <el-form-item label="结果">
           <el-select v-model="ruleSet.elseAction.type" size="mini">
             <el-option label="赋值" value="assign" />
           </el-select>
@@ -81,7 +81,7 @@
             </el-col>
             <el-col :span="4">
               <el-select v-model="ruleSet.elseAction.operator" size="mini">
-                <el-option label="=" value="=" />
+                <el-option :label="ruleSet.elseAction.itemDesc" :value="ruleSet.elseAction.operator" />
               </el-select>
             </el-col>
             <el-col :span="8">
@@ -107,6 +107,7 @@
 
 <script>
 import ConditionGroup from './conditionGroup.vue'
+import { fetchList } from '@/api/variable'
 
 export default {
   name: 'RuleEditor',
@@ -120,14 +121,17 @@ export default {
           type: 'assign',
           field: 'decisionResult',
           operator: '=',
-          value: 'PASS'
+          itemDesc: '赋值',
+          value: '拒绝'
         }
       },
       actionFields: [
-        { label: '授信等级', value: 'creditLevel', type: 'enum', options: ['A', 'B', 'C'] },
-        { label: '授信额度', value: 'creditAmount', type: 'number' },
-        { label: '决策结果', value: 'decisionResult', type: 'enum', options: ['PASS', 'REJECT'] }
-      ]
+        // { label: '授信等级', value: 'creditLevel', type: 'enum', options: ['A', 'B', 'C'] },
+        // { label: '授信额度', value: 'creditAmount', type: 'number' },
+        { label: '决策结果', value: 'decisionResult', type: 'enum', options: ['通过', '拒绝'] }
+      ],
+      variableList: [],
+      variableTotal: -1
     }
   },
   computed: {
@@ -143,6 +147,9 @@ export default {
       return code
     }
   },
+  created() {
+    this.getAllVariableList()
+  },
   methods: {
     getFieldType(fieldValue) {
       const field = this.actionFields.find(f => f.value === fieldValue)
@@ -152,12 +159,22 @@ export default {
       const field = this.actionFields.find(f => f.value === fieldValue)
       return field ? field.options : []
     },
+    getAllVariableList() {
+      this.listLoading = true
+      fetchList({ page: 1, limit: 100000 }).then(response => {
+        if (response.data !== null) {
+          this.variableList = response.data.items
+          this.variableTotal = response.data.total
+        }
+        this.listLoading = false
+      })
+    },
     addRule() {
       const id = Date.now() + Math.random()
       this.ruleSet.rules.push({
         id,
         condition: this.defaultConditionGroup(),
-        action: { type: 'assign', field: '', operator: '=', value: '' }
+        action: { type: 'assign', field: '', operator: '=', itemDesc: '赋值', value: '' }
       })
       this.activeRules.push(id)
     },
@@ -168,7 +185,7 @@ export default {
       return {
         operator: 'AND',
         children: [
-          { field: '', op: '==', value: '' }
+          { field: '', op: '==', itemDesc: '等于', value: '' }
         ]
       }
     },

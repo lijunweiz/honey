@@ -2,8 +2,8 @@
   <div class="condition-group">
     <div class="group-header">
       <el-select v-model="group.operator" size="mini" style="width:80px">
-        <el-option label="AND" value="AND" />
-        <el-option label="OR" value="OR" />
+        <el-option label="并且" value="AND" />
+        <el-option label="或者" value="OR" />
       </el-select>
       <el-button type="text" size="mini" @click="addCondition">+条件</el-button>
       <el-button type="text" size="mini" @click="addGroup">+条件组</el-button>
@@ -16,6 +16,7 @@
         <condition-group
           v-if="item.children"
           :group="item"
+          :variable-list="variableList"
           :parent="group"
           :index="i"
           :is-root="false"
@@ -23,10 +24,8 @@
 
         <!-- 原子条件 -->
         <div v-else class="condition-item">
-          <el-select v-model="item.field" placeholder="字段" size="mini">
-            <el-option label="年龄" value="age" />
-            <el-option label="城市" value="city" />
-            <el-option label="信用分" value="score" />
+          <el-select v-model="item.field" placeholder="变量" size="mini" clearable filterable style="width: 300px">
+            <el-option v-for="vl in variableList" :key="vl.variableNameEn" :value="vl.variableNameEn" :label="vl.variableNameZh" />
           </el-select>
 
           <el-select v-model="item.op" placeholder="操作符" size="mini">
@@ -49,6 +48,7 @@ export default {
   name: 'ConditionGroup',
   props: {
     group: { type: Object, required: true },
+    variableList: { type: Array, default: () => [] },
     parent: { type: Object, default: null },
     index: { type: Number, default: -1 },
     isRoot: { type: Boolean, default: false }
@@ -74,20 +74,17 @@ export default {
       })
     },
     addCondition() {
-      const condition = {
-        field: '',
-        op: '',
-        value: ''
-      }
+      // 获取第一个操作符作为默认值，确保使用API返回的数据结构
+      const defaultOperator = this.operators.length > 0 ? this.operators[0] : { operator: '==', itemDesc: '等于' }
+      const condition = { field: '', op: defaultOperator.operator, itemDesc: defaultOperator.itemDesc, value: '' }
       this.group.children.push(condition)
-      this.$nextTick(() => {
-        condition.op = '=='
-      })
     },
     addGroup() {
+      // 获取第一个操作符作为默认值，确保使用API返回的数据结构
+      const defaultOperator = this.operators.length > 0 ? this.operators[0] : { operator: '==', itemDesc: '等于' }
       this.group.children.push({
         operator: 'AND',
-        children: [{ field: '', op: '==', value: '' }]
+        children: [{ field: '', op: defaultOperator.operator, itemDesc: defaultOperator.itemDesc, value: '' }]
       })
     },
     removeCondition(index) {

@@ -24,3 +24,10 @@ export function createRuleSet(data) {
   })
 }
 
+export function updateRuleSet(data) {
+  return request({
+    url: '/manage/rule/update',
+    method: 'post',
+    data: data
+  })
+}
