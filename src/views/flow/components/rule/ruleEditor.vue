@@ -9,8 +9,8 @@
       <el-collapse v-if="ruleSet.rules.length>0" v-model="activeRules" style="max-height: 60vh;overflow-y: auto;">
         <el-collapse-item
           v-for="(rule, rIndex) in ruleSet.rules"
-          :key="rule.id"
-          :name="rule.id"
+          :key="rule.nodeId"
+          :name="rule.nodeId"
         >
           <template slot="title">
             <span>规则 {{ rIndex + 1 }}&nbsp;</span>
@@ -20,7 +20,7 @@
           <!-- 条件编辑 -->
           <el-form label-width="80px" size="mini">
             <el-form-item label="条件">
-              <condition-group :group="rule.condition" :variable-list="variableList" />
+              <condition-group :group="rule.condition" :variable-list="variableList" :operators="operators" />
             </el-form-item>
 
             <!-- 结果 -->
@@ -108,13 +108,19 @@
 <script>
 import ConditionGroup from './conditionGroup.vue'
 import { fetchList } from '@/api/variable'
+import { fetchRuleOperator, getRuleSetDetail, updateRuleSet } from '@/api/rule'
 
 export default {
   name: 'RuleEditor',
   components: { ConditionGroup },
+  props: {
+    ruleId: { type: Number, required: true },
+    modelId: { type: Number, required: true }
+  },
   data() {
     return {
       activeRules: [],
+      lastActiveRules: [],
       ruleSet: {
         rules: [],
         elseAction: {
@@ -131,7 +137,8 @@ export default {
         { label: '决策结果', value: 'decisionResult', type: 'enum', options: ['通过', '拒绝'] }
       ],
       variableList: [],
-      variableTotal: -1
+      variableTotal: -1,
+      operators: []
     }
   },
   computed: {
@@ -147,10 +154,41 @@ export default {
       return code
     }
   },
+  watch: {
+    async ruleId(val) {
+      // 离开时提示用户有未保存内容
+      // if (this.activeRules.length !== this.lastActiveRules.length) {
+      //   await this.submit()
+      // }
+      if (val === -1) {
+        this.ruleSet.rules = []
+        this.activeRules = [] // 同时清空展开的折叠项
+        this.lastActiveRules = [] // 记录上一次的展开的折叠项
+      } else {
+        this.getRuleSetDetail()
+      }
+    }
+  },
   created() {
     this.getAllVariableList()
+    this.getOps()
+    console.log('editor ruleId: ' + this.ruleId)
+    if (this.ruleId === -1) {
+      this.ruleSet.rules = []
+    } else {
+      this.getRuleSetDetail()
+    }
   },
   methods: {
+    getOps() {
+      fetchRuleOperator({ 'type': 'compare' }).then(response => {
+        if (response.data !== null && response.data.length > 0) {
+          this.operators = response.data
+        }
+      }).catch(() => {
+        console.warn('获取操作符列表失败，使用默认操作符')
+      })
+    },
     getFieldType(fieldValue) {
       const field = this.actionFields.find(f => f.value === fieldValue)
       return field ? field.type : 'string'
@@ -169,14 +207,29 @@ export default {
         this.listLoading = false
       })
     },
+    getRuleSetDetail() {
+      const params = { 'ruleId': this.ruleId, 'modelId': this.modelId }
+      getRuleSetDetail(params).then(response => {
+        if (response.data !== null) {
+          this.ruleSet = response.data.ruleContent
+          // 重置activeRules数组，确保所有规则都展开
+          this.activeRules = this.ruleSet.rules.map(rule => rule.nodeId)
+          this.lastActiveRules = this.activeRules.slice() // 解决watch到变化 触发保存提示
+        }
+      })
+    },
     addRule() {
-      const id = Date.now() + Math.random()
+      if (this.ruleId === -1 || this.modelId === -1) {
+        this.$message.warning('请先选中具体规则')
+        return false
+      }
+      const nodeId = crypto.randomUUID()
       this.ruleSet.rules.push({
-        id,
+        nodeId,
         condition: this.defaultConditionGroup(),
         action: { type: 'assign', field: '', operator: '=', itemDesc: '赋值', value: '' }
       })
-      this.activeRules.push(id)
+      this.activeRules.push(nodeId)
     },
     removeRule(index) {
       this.ruleSet.rules.splice(index, 1)
@@ -214,17 +267,30 @@ export default {
       return ''
     },
     submit() {
-      this.$message.success('处理成功')
-      // this.$confirm('确认保存变更吗?').then(() => {
-      //   const ruleSet = {
-      //     'groupOperator': this.groupOperator,
-      //     'ruleGroups': this.ruleGroups,
-      //     'resultGroups': this.resultGroups
-      //   }
-      //   this.listLoading = true
-      //   createRuleSet(ruleSet).then(() => {
-      //     this.$message.success('处理成功')
-      //     this.listLoading = false
+      console.log('ruleSet: ' + JSON.stringify(this.ruleSet))
+      this.$confirm('确认保存变更吗?').then(() => {
+        this.listLoading = true
+        const params = { 'ruleId': this.ruleId, 'modelId': this.modelId, 'ruleContent': this.ruleSet }
+        updateRuleSet(params).then(() => {
+          this.$message.success('处理成功')
+          this.listLoading = false
+        })
+      })
+      // return new Promise((resolve, reject) => {
+      //   console.log('ruleSet: ' + JSON.stringify(this.ruleSet))
+      //   this.$confirm('确认保存变更吗?').then(() => {
+      //     this.listLoading = true
+      //     const params = { 'ruleId': this.ruleId, 'modelId': this.modelId, 'ruleContent': this.ruleSet }
+      //     updateRuleSet(params).then(() => {
+      //       this.$message.success('处理成功')
+      //       this.listLoading = false
+      //       resolve() // 成功时调用resolve
+      //     }).catch(_ => {
+      //       this.listLoading = false
+      //       // reject(error) // 失败时调用reject
+      //     })
+      //   }).catch(() => {
+      //     // reject(new Error('用户取消保存'))
       //   })
       // })
     }

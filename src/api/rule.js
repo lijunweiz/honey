@@ -24,6 +24,14 @@ export function createRuleSet(data) {
   })
 }
 
+export function getRuleSetDetail(query) {
+  return request({
+    url: '/manage/rule/detail',
+    method: 'get',
+    params: query
+  })
+}
+
 export function updateRuleSet(data) {
   return request({
     url: '/manage/rule/update',

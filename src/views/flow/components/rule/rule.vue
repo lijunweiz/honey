@@ -8,6 +8,9 @@
           :data="treeData"
           :props="defaultProps"
           style="overflow: auto;"
+          highlight-current
+          node-key="id"
+          @node-click="handleNodeClick"
         >
           <div
             slot-scope="{ node, data }"
@@ -28,7 +31,7 @@
         </el-tree>
       </el-aside>
       <el-main style="padding-top: 0">
-        <rule-editor :model-id="localModelId" />
+        <rule-editor :rule-id="ruleId" :model-id="localModelId" />
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%" append-to-body>
           <el-form ref="dataForm" :rules="rules" :model="treeNode" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
             <el-form-item label="规则集名称" prop="ruleName">
@@ -62,6 +65,7 @@ export default {
     return {
       listLoading: false,
       localModelId: this.modelId,
+      ruleId: -1,
       treeData: [],
       defaultProps: {
         children: 'children',
@@ -83,7 +87,7 @@ export default {
         id: undefined,
         ruleGroup: undefined,
         ruleName: undefined,
-        description: '',
+        description: undefined,
         timestamp: new Date().getTime()
       }
     }
@@ -94,7 +98,7 @@ export default {
     }
   },
   created() {
-    console.log(this.localModelId)
+    console.log('localModelId: ' + this.localModelId)
     this.getList()
   },
   methods: {
@@ -143,6 +147,14 @@ export default {
 
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
+    },
+    handleNodeClick(data) {
+      if (data.id == null || data.id === 1 || data.id === 2 || data.id === 3) {
+        this.ruleId = -1
+      } else {
+        this.ruleId = data.id
+      }
+      console.log('ruleId: ' + this.ruleId)
     },
     handleDeleteTreeNode(node, data, e) {
       e.stopPropagation()// 禁止点击事件冒泡（阻止父组件响应点击事件）

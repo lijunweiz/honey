@@ -17,6 +17,7 @@
           v-if="item.children"
           :group="item"
           :variable-list="variableList"
+          :operators="operators"
           :parent="group"
           :index="i"
           :is-root="false"
@@ -42,37 +43,23 @@
 </template>
 
 <script>
-import { fetchRuleOperator } from '@/api/rule'
-
 export default {
   name: 'ConditionGroup',
   props: {
     group: { type: Object, required: true },
     variableList: { type: Array, default: () => [] },
+    operators: { type: Array, default: () => [{ operator: '==', itemDesc: '等于' }] },
     parent: { type: Object, default: null },
     index: { type: Number, default: -1 },
     isRoot: { type: Boolean, default: false }
   },
   data() {
     return {
-      operators: [
-        { operator: '==', itemDesc: '等于' }
-      ]
     }
   },
   created() {
-    this.getOps()
   },
   methods: {
-    getOps() {
-      fetchRuleOperator({ 'type': 'compare' }).then(response => {
-        if (response.data !== null && response.data.length > 0) {
-          this.operators = response.data
-        }
-      }).catch(() => {
-        console.warn('获取操作符列表失败，使用默认操作符')
-      })
-    },
     addCondition() {
       // 获取第一个操作符作为默认值，确保使用API返回的数据结构
       const defaultOperator = this.operators.length > 0 ? this.operators[0] : { operator: '==', itemDesc: '等于' }
